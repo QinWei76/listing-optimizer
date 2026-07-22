@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Generator - ListingAI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #0a0e1a; color: #e2e8f0; min-height: 100vh; }
+        nav { background: #111827; border-bottom: 1px solid #1e293b; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-logo { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; gap: 24px; }
+        .nav-links a { color: #94a3b8; text-decoration: none; font-size: 14px; }
+        .nav-links a:hover { color: #e2e8f0; }
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        .subtitle { color: #64748b; margin-bottom: 32px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 6px; }
+        input, textarea, select { width: 100%; padding: 12px 16px; background: #111827; border: 1px solid #1e293b; border-radius: 8px; color: #e2e8f0; font-size: 15px; }
+        textarea { min-height: 100px; resize: vertical; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #2563eb; }
+        .hint { font-size: 12px; color: #475569; margin-top: 4px; }
+        .generate-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .generate-btn:hover { opacity: 0.9; }
+        .try-example { background: none; border: 1px solid #1e293b; color: #94a3b8; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 8px; }
+        .try-example:hover { border-color: #2563eb; color: #e2e8f0; }
+        .loading { display: none; text-align: center; padding: 40px; }
+        .loading.visible { display: block; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #1e293b; border-top-color: #2563eb; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .results-area { margin-top: 32px; background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 24px; display: none; }
+        .results-area.visible { display: block; }
+        .results-area h2 { font-size: 20px; margin-bottom: 20px; }
+        .result-item { background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .copy-btn { background: #1e293b; color: #94a3b8; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 8px; }
+        .copy-btn:hover { background: #2563eb; color: white; }
+        .disclaimer { font-size: 11px; color: #475569; margin-top: 16px; text-align: center; }
+        footer { text-align: center; padding: 32px; color: #475569; font-size: 13px; border-top: 1px solid #1e293b; margin-top: 60px; }
+        .paywall-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .paywall-overlay.visible { display: flex; }
+        .paywall-card { background: #1a1a2e; border: 1px solid #2d2d44; border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; position: relative; color: #e2e8f0; text-align: center; }
+        .paywall-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
+        .paywall-card h2 { font-size: 22px; margin-bottom: 8px; color: #f1f5f9; }
+        .paywall-subtitle { color: #94a3b8; margin-bottom: 8px; }
+        .paywall-desc { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+        .paywall-plans { display: flex; gap: 12px; margin-bottom: 20px; }
+        .paywall-plan { flex: 1; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px 12px; text-align: center; }
+        .paywall-plan.featured { border-color: #2563eb; }
+        .plan-badge { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 8px; }
+        .plan-name { font-size: 13px; color: #94a3b8; margin-bottom: 4px; }
+        .plan-price { font-size: 24px; font-weight: 700; color: #f1f5f9; }
+        .plan-price span { font-size: 13px; color: #64748b; }
+        .plan-save { color: #4ade80; font-size: 12px; margin-bottom: 8px; }
+        .paywall-plan ul { list-style: none; padding: 0; margin: 12px 0 0; text-align: left; }
+        .paywall-plan li { font-size: 12px; color: #94a3b8; padding: 3px 0; }
+        .paywall-cta { width: 100%; padding: 12px; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
+        .paywall-later { width: 100%; padding: 8px; background: transparent; color: #64748b; border: none; cursor: pointer; font-size: 13px; }
+        .paywall-footer { color: #475569; font-size: 11px; margin-top: 12px; }
+        .platform-guide { margin-top: 24px; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; overflow: hidden; }
+        .platform-guide-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; cursor: pointer; background: #0f172a; }
+        .platform-guide-header:hover { background: #1e293b; }
+        .platform-guide-header h3 { font-size: 15px; color: #94a3b8; margin: 0; }
+        .platform-guide-header .toggle-icon { color: #64748b; transition: transform 0.3s; }
+        .platform-guide-header.open .toggle-icon { transform: rotate(180deg); }
+        .platform-guide-body { display: none; padding: 0 20px 20px; }
+        .platform-guide-body.visible { display: block; }
+        .platform-guide-body .guide-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .platform-guide-body .guide-tab { padding: 6px 14px; border-radius: 6px; background: #1e293b; color: #64748b; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
+        .platform-guide-body .guide-tab:hover { border-color: #2563eb; color: #e2e8f0; }
+        .platform-guide-body .guide-tab.active { background: #2563eb; color: white; }
+        .platform-guide-body .guide-steps { display: none; }
+        .platform-guide-body .guide-steps.visible { display: block; }
+        .platform-guide-body .guide-step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #1e293b; }
+        .platform-guide-body .guide-step:last-child { border-bottom: none; }
+        .platform-guide-body .guide-step-num { width: 24px; height: 24px; border-radius: 50%; background: #2563eb; color: white; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .platform-guide-body .guide-step-text { font-size: 14px; color: #cbd5e1; line-height: 1.5; }
+        .platform-guide-body .guide-step-text strong { color: #e2e8f0; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-logo">ListingAI</div>
+        <div class="nav-links">
+            <a href="title-optimizer.html">Title Optimizer</a>
+            <a href="bullet-points.html">Bullet Points</a>
+            <a href="product-description.html">Description</a>
+            <a href="keyword-generator.html">Keywords</a>
+            <a href="about.html">How It Works</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>🔑 Keyword Generator</h1>
+        <p class="subtitle">Discover high-impact keywords to maximize your product visibility</p>
+
+        <div class="form-group">
+            <label for="productName">Product Name</label>
+            <input type="text" id="productName" placeholder="e.g. Portable Blender">
+        </div>
+
+        <div class="form-group">
+            <label for="productCategory">Product Category</label>
+            <input type="text" id="productCategory" placeholder="e.g. Electronics / Home & Kitchen">
+        </div>
+
+        <div class="form-group">
+            <label for="mainKeywords">Main Keywords</label>
+            <input type="text" id="mainKeywords" placeholder="Comma-separated keywords">
+        </div>
+
+        <div class="form-group">
+            <label for="langSelect">🌐 Target Language</label>
+            <select id="langSelect">
+                <option value="en">🇺🇸 English</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="ja">🇯🇵 日本語</option>
+                <option value="zh">🇨🇳 中文</option>
+            </select>
+            <div class="hint">AI generates native-quality copy for each marketplace — not translations</div>
+        </div>
+
+        <button class="generate-btn" onclick="generateKeywords()">✨ Generate Keywords</button>
+        <button class="try-example" onclick="loadExample()">Try an example</button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing keywords and generating suggestions...</p>
+        </div>
+
+        <div class="results-area" id="results">
+            <h2>📋 Keyword Suggestions</h2>
+            <div id="resultsContent"></div>
+            <p class="disclaimer">AI-generated suggestions. Validate keywords with your platform's search data before publishing.</p>
+        </div>
+
+        <div class="platform-guide">
+            <div class="platform-guide-header" onclick="toggleGuide()">
+                <h3>📋 How to use this on your platform</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="platform-guide-body">
+                <div class="guide-tabs">
+                    <div class="guide-tab active" data-platform="amazon" onclick="switchGuideTab('amazon')">🟠 Amazon</div>
+                    <div class="guide-tab" data-platform="shopify" onclick="switchGuideTab('shopify')">🟢 Shopify</div>
+                    <div class="guide-tab" data-platform="etsy" onclick="switchGuideTab('etsy')">🟠 Etsy</div>
+                    <div class="guide-tab" data-platform="ebay" onclick="switchGuideTab('ebay')">🔴 eBay</div>
+                </div>
+                <div class="guide-steps visible" data-platform="amazon">
+                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Seller Central</strong> → <strong>Inventory</strong> → <strong>Manage Inventory</strong></div></div>
+                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Click <strong>"Edit"</strong> on your product</div></div>
+                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Paste the generated content into the corresponding fields. Put the main title in <strong>"Product Name"</strong>, and keywords in <strong>"Search Terms"</strong> (backend keywords, max 250 bytes)</div></div>
+                </div>
+                <div class="guide-steps" data-platform="shopify">
+                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Shopify Admin</strong> → <strong>Products</strong> → click your product</div></div>
+                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Edit the <strong>"Title"</strong> field, add description in the rich text editor</div></div>
+                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Add tags in the <strong>"Tags"</strong> field (separated by commas), click <strong>"Save"</strong></div></div>
+                </div>
+                <div class="guide-steps" data-platform="etsy">
+                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Shop Manager</strong> → <strong>Listings</strong> → <strong>Add a listing</strong></div></div>
+                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Enter title in <strong>"Title"</strong> (max 140 chars), description in the text editor</div></div>
+                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Add 13 tags in <strong>"Tags"</strong> (max 20 chars each). Use all 13 for maximum visibility</div></div>
+                </div>
+                <div class="guide-steps" data-platform="ebay">
+                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>My eBay</strong> → <strong>Selling</strong> → <strong>Create listing</strong></div></div>
+                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Enter title in <strong>"Title"</strong> (max 80 chars). Use all 80 characters for maximum visibility</div></div>
+                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Fill in <strong>"Item Specifics"</strong> as completely as possible (they affect search ranking). Paste description into the listing description</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 ListingAI. AI-powered product listing optimization.</p>
+    </footer>
+
+    <div class="paywall-overlay" id="paywallModal">
+        <div class="paywall-card">
+            <button class="paywall-close" onclick="hidePaywall()">&times;</button>
+            <h2>⚡ Daily Limit Reached</h2>
+            <p class="paywall-subtitle">You've used <span id="creditCount">3/3</span> free generations today.</p>
+            <p class="paywall-desc">Upgrade to Pro for unlimited AI-powered listing creation.</p>
+            <div class="paywall-plans">
+                <div class="paywall-plan">
+                    <div class="plan-name">Pro Monthly</div>
+                    <div class="plan-price">$9.9<span>/mo</span></div>
+                    <ul><li>✓ Unlimited generations</li><li>✓ All 7 languages</li><li>✓ Advanced keyword analysis</li></ul>
+                </div>
+                <div class="paywall-plan featured">
+                    <div class="plan-badge">BEST VALUE</div>
+                    <div class="plan-name">Pro Annual</div>
+                    <div class="plan-price">$79<span>/yr</span></div>
+                    <div class="plan-save">Save 33%</div>
+                    <ul><li>✓ Everything in Monthly</li><li>✓ Priority support</li></ul>
+                </div>
+            </div>
+            <button class="paywall-cta" onclick="window.open('#', '_blank')">🔓 Upgrade Now</button>
+            <button class="paywall-later" onclick="hidePaywall()">Maybe Later</button>
+            <p class="paywall-footer">🔒 Secure payment via Gumroad</p>
+        </div>
+    </div>
+
+    <script>
+        const DAILY_LIMIT = 3;
+        const CREDIT_KEY = 'listingai_credits';
+        const LANG_MAP = {
+            en: 'English', de: 'German', fr: 'French', es: 'Spanish',
+            it: 'Italian', ja: 'Japanese', zh: 'Chinese (Simplified)'
+        };
+
+        function getCreditInfo() {
+            const today = new Date().toDateString();
+            const stored = JSON.parse(localStorage.getItem(CREDIT_KEY) || '{}');
+            if (stored.date !== today) return { date: today, count: 0 };
+            return stored;
+        }
+
+        function useCredit() {
+            const info = getCreditInfo();
+            info.count++;
+            localStorage.setItem(CREDIT_KEY, JSON.stringify(info));
+        }
+
+        function canGenerate() { return getCreditInfo().count < DAILY_LIMIT; }
+
+        function showPaywall() {
+            document.getElementById('creditCount').textContent = getCreditInfo().count + '/' + DAILY_LIMIT;
+            document.getElementById('paywallModal').classList.add('visible');
+        }
+
+        function hidePaywall() { document.getElementById('paywallModal').classList.remove('visible'); }
+
+        function toggleGuide() {
+            var header = document.querySelector('.platform-guide-header');
+            var body = document.querySelector('.platform-guide-body');
+            header.classList.toggle('open');
+            body.classList.toggle('visible');
+        }
+
+        function switchGuideTab(platform) {
+            document.querySelectorAll('.platform-guide-body .guide-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.platform-guide-body .guide-steps').forEach(function(s) { s.classList.remove('visible'); });
+            document.querySelector('.platform-guide-body .guide-tab[data-platform="' + platform + '"]').classList.add('active');
+            document.querySelector('.platform-guide-body .guide-steps[data-platform="' + platform + '"]').classList.add('visible');
+        }
+
+        function loadExample() {
+            document.getElementById('productName').value = 'Portable Blender';
+            document.getElementById('productCategory').value = 'Kitchen & Home Appliances';
+            document.getElementById('mainKeywords').value = 'portable blender, mini blender, personal blender';
+        }
+
+        async function generateKeywords() {
+            if (!canGenerate()) {
+                showPaywall();
+                return;
+            }
+
+            const productName = document.getElementById('productName').value.trim();
+            const productCategory = document.getElementById('productCategory').value.trim();
+            const mainKeywords = document.getElementById('mainKeywords').value.trim();
+            const lang = document.getElementById('langSelect').value;
+
+            if (!productName) {
+                alert('Please fill in Product Name');
+                return;
+            }
+
+            useCredit();
+
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            loading.classList.add('visible');
+            results.classList.remove('visible');
+
+            const systemPrompt = `You are an expert e-commerce SEO specialist. Your task is to generate a comprehensive keyword list for product listing optimization based on user product information.
+
+Search Intent Layering:
+- Informational: Keywords from users researching (e.g., "best wireless earbuds 2026", "how to choose running shoes")
+- Commercial: Keywords from users comparing (e.g., "airpods vs galaxy buds", "noise cancelling earbuds comparison")
+- Transactional: Keywords from users ready to buy (e.g., "buy wireless earbuds online", "noise cancelling earbuds price")
+
+Keyword combination strategies:
+1. Core terms: Main product keywords
+2. Long-tail keywords: 3-5 word specific phrases
+3. Question keywords: What buyers search in Q&A format
+4. Feature keywords: Product feature related searches
+5. Scene/use-case keywords: Usage scenario related searches
+
+Platform-specific rules:
+- Amazon: Focus on A9 search algorithm. Max 250 bytes for backend Search Terms. Frontend title uses core keywords.
+- Shopify: Focus on Google Shopping SEO. Include long-tail and question keywords.
+- Etsy: Focus on scenario-based search. Handmade/vintage related terms. Max 20 chars per tag, 13 tags.
+- eBay: Structured keyword combinations. Brand + model + specs format.
+
+Language rule: Generate keywords that actual buyers use in the target marketplace language. Consider local search habits and regional terms.
+
+Output categories:
+1. 🔥 Core Keywords (top 5 high-relevance)
+2. 📈 Long-tail Keywords (top 5 low-competition)
+3. ❓ Question Keywords (top 3 Q&A format)
+4. 🎯 Scene/Use-case Keywords (top 3)
+5. 🏷️ Platform-specific backend keywords (ready to copy)
+
+Each keyword includes:
+- Keyword text
+- Estimated relevance (High/Medium/Low)
+- Suggested placement (title/bullet/description/backend)`;
+
+            const userPrompt = `Product: ${productName}
+Category: ${productCategory || 'General'}
+Main Keywords: ${mainKeywords || 'None specified'}
+Language: ${LANG_MAP[lang]}
+
+Generate a comprehensive keyword list following the output format specified.`;
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        system: systemPrompt,
+                        user: userPrompt,
+                        max_tokens: 2000
+                    })
+                });
+
+                if (!response.ok) throw new Error('API request failed');
+
+                const data = await response.json();
+                displayResults(data.content);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate keywords. Please try again.');
+            } finally {
+                loading.classList.remove('visible');
+            }
+        }
+
+        function displayResults(content) {
+            const results = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+
+            const sections = content.split(/(?=##)/);
+            let html = '';
+
+            sections.forEach(section => {
+                if (section.trim()) {
+                    const title = section.match(/##\s*(.+?)(?=\n)/)?.[1] || 'Generated Content';
+                    const body = section.replace(/##\s*.+?\n/, '').trim();
+                    html += `<div class="result-item">
+                        <h3 style="color:#94a3b8;font-size:14px;margin-bottom:8px;">${title}</h3>
+                        <div style="color:#e2e8f0;line-height:1.6;white-space:pre-wrap;">${body}</div>
+                        <button class="copy-btn" onclick="copyText(this)">📋 Copy</button>
+                    </div>`;
+                }
+            });
+
+            if (!html) {
+                html = `<div class="result-item">
+                    <div style="color:#e2e8f0;line-height:1.6;white-space:pre-wrap;">${content}</div>
+                    <button class="copy-btn" onclick="copyText(this)">📋 Copy</button>
+                </div>`;
+            }
+
+            resultsContent.innerHTML = html;
+            results.classList.add('visible');
+        }
+
+        function copyText(btn) {
+            const text = btn.parentElement.querySelector('div').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
