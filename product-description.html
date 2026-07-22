@@ -143,6 +143,28 @@ footer { text-align: center; padding: 32px; color: #475569; font-size: 13px; bor
 .platform-guide-body .guide-step-text { font-size: 14px; color: #cbd5e1; line-height: 1.5; }
 .platform-guide-body .guide-step-text strong { color: #e2e8f0; }
 
+
+/* Platform guide - logo buttons */
+.platform-guide-new { margin-top: 24px; margin-bottom: 24px; background: rgba(15,23,42,.4); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; overflow: hidden; }
+.platform-guide-label { padding: 16px 20px 0; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+.platform-logos { display: flex; gap: 12px; padding: 12px 20px 16px; justify-content: center; }
+.platform-logo-btn { flex: 1; max-width: 120px; padding: 12px 16px; border-radius: 12px; background: rgba(30,41,59,.6); color: #94a3b8; font-size: 13px; cursor: pointer; border: 1px solid rgba(255,255,255,.06); transition: all .25s; font-weight: 500; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.platform-logo-btn:hover { border-color: rgba(99,102,241,.3); color: #e2e8f0; transform: translateY(-2px); }
+.platform-logo-btn.active { border-color: rgba(99,102,241,.6); background: rgba(99,102,241,.1); color: #e2e8f0; box-shadow: 0 4px 16px rgba(99,102,241,.2), inset 0 1px 0 rgba(255,255,255,.1); }
+.platform-logo-btn.active::after { content: ''; position: absolute; bottom: 0; left: 20%; right: 20%; height: 2px; background: linear-gradient(90deg, #6366f1, #8b5cf6); border-radius: 2px; }
+.platform-logo-btn { position: relative; }
+.platform-logo-icon { font-size: 20px; font-weight: 700; line-height: 1; }
+.platform-logo-name { font-size: 11px; font-weight: 500; }
+.guide-content-area { padding: 0 20px 20px; }
+.guide-content-area .guide-hint { color: #475569; font-size: 13px; text-align: center; padding: 12px; }
+.guide-content-area .guide-steps { display: none; animation: fadeInUp .3s ease; }
+.guide-content-area .guide-steps.visible { display: block; }
+.guide-content-area .guide-step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+.guide-content-area .guide-step:last-child { border-bottom: none; }
+.guide-content-area .guide-step-num { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px rgba(99,102,241,.3); }
+.guide-content-area .guide-step-text { font-size: 14px; color: #cbd5e1; line-height: 1.5; }
+.guide-content-area .guide-step-text strong { color: #e2e8f0; }
+
 /* Responsive */
 @media (max-width: 600px) {
     .btn-row { flex-direction: column; }
@@ -177,6 +199,50 @@ footer { text-align: center; padding: 32px; color: #475569; font-size: 13px; bor
         <h1>📄 Description Generator</h1>
         <p class="subtitle">Generate rich, persuasive product descriptions with AIDA framework</p>
         </div>
+        <div class="platform-guide-new">
+            <div class="platform-guide-label">📋 How to use on your platform</div>
+            <div class="platform-logos">
+                <div class="platform-logo-btn active" data-platform="amazon" onclick="showPlatformGuide('amazon')">
+                    <span class="platform-logo-icon" style="color:#FF9900;font-size:0.9rem;">a</span>
+                    <span class="platform-logo-name">Amazon</span>
+                </div>
+                <div class="platform-logo-btn" data-platform="shopify" onclick="showPlatformGuide('shopify')">
+                    <span class="platform-logo-icon" style="color:#95BF47;font-size:0.9rem;">S</span>
+                    <span class="platform-logo-name">Shopify</span>
+                </div>
+                <div class="platform-logo-btn" data-platform="etsy" onclick="showPlatformGuide('etsy')">
+                    <span class="platform-logo-icon" style="color:#F1641E;font-size:0.9rem;font-style:italic;font-family:Georgia,serif;">E</span>
+                    <span class="platform-logo-name">Etsy</span>
+                </div>
+                <div class="platform-logo-btn" data-platform="ebay" onclick="showPlatformGuide('ebay')">
+                    <span class="platform-logo-icon" style="color:#E53238;font-size:0.9rem;">e</span>
+                    <span class="platform-logo-name">eBay</span>
+                </div>
+            </div>
+            <div class="guide-content-area">
+                <div class="guide-steps visible" data-platform="amazon">
+                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Seller Central</strong> → <strong>Inventory</strong> → <strong>Manage Inventory</strong></div></div>
+                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Click <strong>"Edit"</strong> on your product</div></div>
+                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Paste the generated content into the corresponding fields. Put the main title in <strong>"Product Name"</strong>, and keywords in <strong>"Search Terms"</strong> (backend keywords, max 250 bytes)</div></div>
+                </div>
+                <div class="guide-steps" data-platform="shopify">
+                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Shopify Admin</strong> → <strong>Products</strong> → click your product</div></div>
+                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Edit the <strong>"Title"</strong> field, add description in the rich text editor</div></div>
+                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Add tags in the <strong>"Tags"</strong> field (separated by commas), click <strong>"Save"</strong></div></div>
+                </div>
+                <div class="guide-steps" data-platform="etsy">
+                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Shop Manager</strong> → <strong>Listings</strong> → <strong>Add a listing</strong></div></div>
+                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Enter title in <strong>"Title"</strong> (max 140 chars), description in the text editor</div></div>
+                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Add 13 tags in <strong>"Tags"</strong> (max 20 chars each). Use all 13 for maximum visibility</div></div>
+                </div>
+                <div class="guide-steps" data-platform="ebay">
+                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>My eBay</strong> → <strong>Selling</strong> → <strong>Create listing</strong></div></div>
+                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Enter title in <strong>"Title"</strong> (max 80 chars). Use all 80 characters for maximum visibility</div></div>
+                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Fill in <strong>"Item Specifics"</strong> as completely as possible (they affect search ranking). Paste description into the listing description</div></div>
+                </div>
+            </div>
+        </div>
+
         <div class="form-card">
 
 
@@ -236,41 +302,7 @@ footer { text-align: center; padding: 32px; color: #475569; font-size: 13px; bor
             <p class="disclaimer">⚠️ AI-generated content. Please review and adjust for your specific product and marketplace.</p>
         </div>
 
-        <div class="platform-guide">
-            <div class="platform-guide-header open" onclick="toggleGuide()">
-                <h3>📋 How to use this on your platform</h3>
-                <span class="toggle-icon">▼</span>
             </div>
-            <div class="platform-guide-body visible">
-                <div class="guide-tabs">
-                    <div class="guide-tab active" data-platform="amazon" onclick="switchGuideTab('amazon')"><span class="tab-logo" style="color:#FF9900;font-size:0.7rem;font-weight:700;">a</span>Amazon</div>
-                    <div class="guide-tab" data-platform="shopify" onclick="switchGuideTab('shopify')"><span class="tab-logo" style="color:#95BF47;font-size:0.7rem;font-weight:700;">S</span>Shopify</div>
-                    <div class="guide-tab" data-platform="etsy" onclick="switchGuideTab('etsy')"><span class="tab-logo" style="color:#F1641E;font-size:0.7rem;font-weight:700;font-style:italic;font-family:Georgia,serif;">E</span>Etsy</div>
-                    <div class="guide-tab" data-platform="ebay" onclick="switchGuideTab('ebay')"><span class="tab-logo" style="color:#E53238;font-size:0.7rem;font-weight:700;">e</span>eBay</div>
-                </div>
-                <div class="guide-steps visible" data-platform="amazon">
-                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Seller Central</strong> → <strong>Inventory</strong> → <strong>Manage Inventory</strong></div></div>
-                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Click <strong>"Edit"</strong> on your product</div></div>
-                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Paste the generated content into the corresponding fields. Put the main title in <strong>"Product Name"</strong>, and keywords in <strong>"Search Terms"</strong> (backend keywords, max 250 bytes)</div></div>
-                </div>
-                <div class="guide-steps" data-platform="shopify">
-                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Shopify Admin</strong> → <strong>Products</strong> → click your product</div></div>
-                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Edit the <strong>"Title"</strong> field, add description in the rich text editor</div></div>
-                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Add tags in the <strong>"Tags"</strong> field (separated by commas), click <strong>"Save"</strong></div></div>
-                </div>
-                <div class="guide-steps" data-platform="etsy">
-                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Shop Manager</strong> → <strong>Listings</strong> → <strong>Add a listing</strong></div></div>
-                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Enter title in <strong>"Title"</strong> (max 140 chars), description in the text editor</div></div>
-                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Add 13 tags in <strong>"Tags"</strong> (max 20 chars each). Use all 13 for maximum visibility</div></div>
-                </div>
-                <div class="guide-steps" data-platform="ebay">
-                    <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>My eBay</strong> → <strong>Selling</strong> → <strong>Create listing</strong></div></div>
-                    <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">Enter title in <strong>"Title"</strong> (max 80 chars). Use all 80 characters for maximum visibility</div></div>
-                    <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">Fill in <strong>"Item Specifics"</strong> as completely as possible (they affect search ranking). Paste description into the listing description</div></div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <footer>
         <p>© 2026 ListingAI. AI-powered e-commerce listing optimization.</p>
@@ -463,14 +495,22 @@ function loadExample() {
     document.getElementById('toneSelect').value = 'Professional';
 }
 
-function toggleGuide() {
-    var header = document.querySelector('.platform-guide-header');
-    var body = document.querySelector('.platform-guide-body');
-    header.classList.toggle('open');
-    body.classList.toggle('visible');
-}
-function switchGuideTab(platform) {
-    document.querySelectorAll('.platform-guide-body .guide-tab').forEach(function(t) { t.classList.remove('active'); });
+function showPlatformGuide(platform) {
+    // Update logo buttons
+    document.querySelectorAll('.platform-logo-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+    });
+    document.querySelector('.platform-logo-btn[data-platform="' + platform + '"]').classList.add('active');
+    
+    // Update guide steps
+    document.querySelectorAll('.guide-content-area .guide-steps').forEach(function(steps) {
+        steps.classList.remove('visible');
+    });
+    var targetSteps = document.querySelector('.guide-content-area .guide-steps[data-platform="' + platform + '"]');
+    if (targetSteps) {
+        targetSteps.classList.add('visible');
+    }
+});
     document.querySelectorAll('.platform-guide-body .guide-steps').forEach(function(s) { s.classList.remove('visible'); });
     document.querySelector('.platform-guide-body .guide-tab[data-platform="' + platform + '"]').classList.add('active');
     document.querySelector('.platform-guide-body .guide-steps[data-platform="' + platform + '"]').classList.add('visible');
