@@ -78,12 +78,8 @@ footer { text-align: center; padding: 32px; color: #475569; font-size: 13px; bor
 .platform-guide-body .guide-tab { padding: 6px 14px; border-radius: 6px; background: #1e293b; color: #64748b; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
 .platform-guide-body .guide-tab:hover { border-color: #2563eb; color: #e2e8f0; }
 .platform-guide-body .guide-tab.active { background: #2563eb; color: white; }
-.platform-guide-body .guide-tab .tab-logo { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
-.platform-guide-body .guide-tab .tab-logo.amazon { background: #FF9900; }
-.platform-guide-body .guide-tab .tab-logo.shopify { background: #95BF47; }
-.platform-guide-body .guide-tab .tab-logo.etsy { background: #F1641E; }
-.platform-guide-body .guide-tab .tab-logo.ebay { background: #E53238; }
-.platform-guide-body .guide-tab.active .tab-logo { background: white; }
+.platform-guide-body .guide-tab .tab-logo { display: inline-block; width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; object-fit: contain; }
+.platform-guide-body .guide-tab.active .tab-logo { opacity: 0.6; filter: brightness(2); }
 .platform-guide-body .guide-steps { display: none; }
 .platform-guide-body .guide-steps.visible { display: block; }
 .platform-guide-body .guide-step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #1e293b; }
@@ -166,10 +162,10 @@ footer { text-align: center; padding: 32px; color: #475569; font-size: 13px; bor
             </div>
             <div class="platform-guide-body">
                 <div class="guide-tabs">
-                    <div class="guide-tab active" data-platform="amazon" onclick="switchGuideTab('amazon')"><span class="tab-logo amazon"></span>Amazon</div>
-                    <div class="guide-tab" data-platform="shopify" onclick="switchGuideTab('shopify')"><span class="tab-logo shopify"></span>Shopify</div>
-                    <div class="guide-tab" data-platform="etsy" onclick="switchGuideTab('etsy')"><span class="tab-logo etsy"></span>Etsy</div>
-                    <div class="guide-tab" data-platform="ebay" onclick="switchGuideTab('ebay')"><span class="tab-logo ebay"></span>eBay</div>
+                    <div class="guide-tab active" data-platform="amazon" onclick="switchGuideTab('amazon')"><img src="https://www.google.com/s2/favicons?domain=amazon.com&sz=64" alt="" class="tab-logo">Amazon</div>
+                    <div class="guide-tab" data-platform="shopify" onclick="switchGuideTab('shopify')"><img src="https://www.google.com/s2/favicons?domain=shopify.com&sz=64" alt="" class="tab-logo">Shopify</div>
+                    <div class="guide-tab" data-platform="etsy" onclick="switchGuideTab('etsy')"><img src="https://www.google.com/s2/favicons?domain=etsy.com&sz=64" alt="" class="tab-logo">Etsy</div>
+                    <div class="guide-tab" data-platform="ebay" onclick="switchGuideTab('ebay')"><img src="https://www.google.com/s2/favicons?domain=ebay.com&sz=64" alt="" class="tab-logo">eBay</div>
                 </div>
                 <div class="guide-steps visible" data-platform="amazon">
                     <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Seller Central</strong> → <strong>Inventory</strong> → <strong>Manage Inventory</strong></div></div>
