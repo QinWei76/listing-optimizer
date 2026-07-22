@@ -123,7 +123,15 @@
       padding: 28px 24px; text-align: center; transition: border-color .25s;
     }
     .platform-card:hover { border-color: var(--blue); }
-        .platform-card .icon svg { width: 48px; height: 48px; }
+        .platform-card .icon { font-size: 1.1rem; font-weight: 700; height: 48px; display: flex; align-items: center; justify-content: center; }
+    .brand-amazon { color: #FF9900; font-size: 1.3rem; letter-spacing: -0.5px; }
+    .brand-shopify { color: #95BF47; font-size: 1.1rem; }
+    .brand-etsy { color: #F1641E; font-size: 1.2rem; font-style: italic; font-family: Georgia, serif; }
+    .brand-ebay { font-size: 1.15rem; }
+    .brand-ebay .e1 { color: #E53238; }
+    .brand-ebay .b { color: #0064D2; }
+    .brand-ebay .a { color: #F5AF02; }
+    .brand-ebay .y { color: #86B817; }
 
     .platform-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
     .platform-card p { font-size: .85rem; color: var(--text-muted); }
@@ -252,25 +260,25 @@
     <div class="platforms-grid">
 
       <div class="platform-card">
-        <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.525.13.12.174.09.336-.12.48-.256.19-.6.41-1.006.654-1.244.743-2.64 1.316-4.185 1.726a17.617 17.617 0 01-10.951-.577 17.88 17.88 0 01-5.43-3.35c-.1-.074-.151-.15-.151-.22 0-.047.021-.09.051-.13z"/></svg></div>
+        <div class="icon"><span class="brand-amazon">amazon</span></div>
         <h3>Amazon</h3>
         <p>A9 algorithm optimization with keyword-weighted titles and bullet structures that rank.</p>
       </div>
 
       <div class="platform-card">
-        <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#95BF47"><path d="M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01z"/></svg></div>
+        <div class="icon"><span class="brand-shopify">shopify</span></div>
         <h3>Shopify</h3>
         <p>Brand-oriented descriptions and SEO meta content that drives organic traffic to your store.</p>
       </div>
 
       <div class="platform-card">
-        <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#F1641E"><path d="M8.559 2.445c0-.325.033-.52.59-.52h7.465c1.3 0 2.02 1.11 2.54 3.193l.42 1.666h1.27c.23-4.728.43-6.784.43-6.784s-3.196.36-5.09.36H6.635L1.521.196v1.37l1.725.326c1.21.24 1.5.496 1.6 1.606 0 0 .11 3.27.11 8.64 0 5.385-.09 8.61-.09 8.61 0 .973-.39 1.333-1.59 1.573l-1.722.33V24l5.13-.165h8.55c1.935 0 6.39.165 6.39.165.105-1.17.75-6.48.855-7.064h-1.2l-1.284 2.91c-1.005 2.28-2.476 2.445-4.11 2.445h-4.906c-1.63 0-2.415-.64-2.415-2.05V12.8s3.62 0 4.79.096c.912.064 1.463.325 1.76 1.598l.39 1.695h1.41l-.09-4.278.192-4.305h-1.391l-.45 1.89c-.283 1.244-.48 1.47-1.754 1.6-1.666.17-4.815.14-4.815.14V2.45h-.05z"/></svg></div>
+        <div class="icon"><span class="brand-etsy">Etsy</span></div>
         <h3>Etsy</h3>
         <p>Scenario-based search optimization that connects handmade and vintage items with the right buyers.</p>
       </div>
 
       <div class="platform-card">
-        <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M6.056 12.132v-4.92h1.2v3.026c.59-.703 1.402-.906 2.202-.906 1.34 0 2.828.904 2.828 2.855 0 .233-.015.457-.06.668.24-.953 1.274-1.305 2.896-1.344.51-.018 1.095-.018 1.56-.018v-.135c0-.885-.556-1.244-1.53-1.244-.72 0-1.245.3-1.305.81h-1.275c.136-1.29 1.5-1.62 2.686-1.62 1.064 0 1.995.27 2.415 1.02l-.436-.84h1.41l2.055 4.125 2.055-4.126H24l-3.72 7.305h-1.346l1.07-2.04-2.33-4.38c.13.255.2.555.2.93v2.46c0 .346.01.69.04 1.005H16.8a6.543 6.543 0 01-.046-.765c-.603.734-1.32.96-2.32.96-1.48 0-2.272-.78-2.272-1.695 0-.15.015-.284.037-.405-.3 1.246-1.36 2.086-2.767 2.086-.87 0-1.694-.315-2.2-.93 0 .24-.015.494-.04.734h-1.18c.02-.39.04-.855.04-1.245v-1.05h-4.83c.065 1.095.818 1.74 1.853 1.74.718 0 1.355-.3 1.568-.93h1.24c-.24 1.29-1.61 1.725-2.79 1.725C.95 15.009 0 13.822 0 12.232c0-1.754.982-2.91 3.116-2.91 1.688 0 2.93.886 2.94 2.806v.005z"/></svg></div>
+        <div class="icon"><span class="brand-ebay"><span class="e1">e</span><span class="b">B</span><span class="a">a</span><span class="y">y</span></span></div>
         <h3>eBay</h3>
         <p>Structured titles with item specifics that maximize visibility in eBay's Cassini search engine.</p>
       </div>
