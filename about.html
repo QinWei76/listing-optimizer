@@ -123,8 +123,24 @@
       padding: 28px 24px; text-align: center; transition: border-color .25s;
     }
     .platform-card:hover { border-color: var(--blue); }
+    /* Platform brand logos */
     .platform-card .icon { margin-bottom: 12px; display: flex; justify-content: center; align-items: center; height: 40px; }
-    .platform-card .icon svg { height: 32px; width: auto; }
+    .brand-logo { font-weight: 800; font-size: 26px; line-height: 1; display: inline-flex; align-items: center; position: relative; }
+    /* Amazon */
+    .brand-amazon { color: #232F3E; font-family: Arial, sans-serif; letter-spacing: -0.5px; }
+    .brand-amazon::after { content: ''; position: absolute; bottom: -6px; left: 10%; width: 80%; height: 4px; background: #FF9900; border-radius: 0 0 50% 50%; }
+    /* Shopify */
+    .brand-shopify { width: 32px; height: 38px; background: #95BF47; border-radius: 6px 6px 4px 4px; position: relative; display: inline-block; }
+    .brand-shopify::before { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 14px; height: 10px; border: 3px solid #95BF47; border-radius: 3px 3px 0 0; border-bottom: none; }
+    .brand-shopify::after { content: 'S'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 16px; font-weight: 700; }
+    /* Etsy */
+    .brand-etsy { color: #F1641E; font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: 28px; letter-spacing: 1px; }
+    /* eBay */
+    .brand-ebay { font-family: Arial, Helvetica, sans-serif; font-size: 28px; letter-spacing: -1px; }
+    .brand-ebay .e1 { color: #E53238; }
+    .brand-ebay .b { color: #0064D2; }
+    .brand-ebay .a { color: #F5AF02; }
+    .brand-ebay .y { color: #86B817; }
     .platform-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
     .platform-card p { font-size: .85rem; color: var(--text-muted); }
 
@@ -252,25 +268,25 @@
     <div class="platforms-grid">
 
       <div class="platform-card">
-        <div class="icon"><svg viewBox="0 0 603 182" xmlns="http://www.w3.org/2000/svg"><path d="M374 143c-16.5 13-40.5 19.8-61 19.8-28.9 0-54.8-10.7-74.5-28.5-1.5-1.4-.2-3.3 1.7-2.2 21.2 12.4 47.5 19.8 74.7 19.8 18.3 0 38.4-3.8 57.4-11.6 2.9-1.2 5.3 1.9 3.4 3.4l-1.7-.7z" fill="#FF9900"/><path d="M382.3 133.3c-2.1-2.7-14-1.3-19.3-.6-1.6.2-1.8-1.2-.4-2.2 9.5-6.7 25-9.5 37-5.5 1.4.5 1.2 1.9-.1 2.8-4.6 3.2-15.1 10.2-15.1 10.2s0-2.5-2.1-4.7z" fill="#FF9900"/><path d="M349.2 21.3V6.5c0-.9.7-1.6 1.6-1.6h52.6c.9 0 1.6.7 1.6 1.6v12.6c0 .9-.8 2.1-2.1 3.9L375 43.8c7.9-.2 16.2 1 23.3 4.9 1.1.6 1.4 1.6 1.2 2.7v15.5c0 1-.9 1.8-1.9 1.6-12.9-2.7-25.3-2.3-37.5 2.8-1.8.8-3.1-.1-3.1-2V55.5c0-1 .1-2.6 1.3-3.9l31.3-28.3h-27.3c-.9 0-1.6-.7-1.6-1.6l-.5-.4z" fill="#232F3E"/><path d="M59.8 104.6H43.5c-.8-.1-1.4-.6-1.5-1.4V8.2c0-.8.7-1.5 1.6-1.5h15.2c.8 0 1.5.6 1.5 1.4v12.3h.3C64 9.3 73.7 5.1 83.9 5.1c10.3 0 19.1 4.2 24.9 15.3 3.3-6.4 7.1-10.6 12.2-13.3 5.1-2.7 10.7-2 15.5-2 5.5 0 13.6 1.4 19.6 7.2 5 4.8 5.2 11.9 5.1 19.2v61.1c0 .8-.7 1.5-1.6 1.5H143c-.8 0-1.5-.6-1.5-1.5V39.2c0-2.7.2-9.5-1-12-1.6-3.6-5.1-4.6-8.1-4.6-3.4 0-7.1 2.3-8.6 5.9-1.5 3.6-1.3 9.6-1.3 13.5v52.6c0 .8-.7 1.5-1.6 1.5H105c-.8 0-1.5-.6-1.5-1.5l-.1-52.6c0-2.2.2-9.8-1.2-12.2-1.5-2.7-5.1-4.4-8.1-4.4-3.5 0-7.3 2.3-8.7 5.9-1.5 3.6-1.3 9.6-1.3 13.5v52.6c0 .8-.7 1.5-1.6 1.5z" fill="#232F3E"/><path d="M222.4 4.1c15.3 0 23.6 13.2 23.6 30 0 16.1-9.1 29.1-23.6 29.1-15 0-23.3-13.2-23.3-29.5 0-16.4 8.5-29.6 23.3-29.6zm.2 10.9c-7.6 0-8 10.3-8 16.7 0 6.4-.1 20.3 7.9 20.3 7.9 0 8.2-11.1 8.2-17.9 0-4.5-.2-9.9-1.5-14.2-1.2-3.8-3.5-4.9-6.6-4.9z" fill="#232F3E"/><path d="M274.5 104.6h-16.3c-.8-.1-1.4-.6-1.5-1.4l-.1-1.5c-3 3.1-7.1 4.5-11.7 4.5-9.4 0-14.8-7.3-14.8-18.1V38.9c0-.8.7-1.5 1.6-1.5h16.3c.8 0 1.5.7 1.5 1.5V84c0 2.7 0 7.5 1.1 9.5 1 1.8 2.8 2.4 5.2 2.4 2.3 0 4.3-1.3 5.3-3.3 1.3-2.5 1.5-6.2 1.5-9.5V38.9c0-.8.7-1.5 1.6-1.5h16.3c.8 0 1.5.7 1.5 1.5l.1 64.3c0 .8-.7 1.5-1.6 1.5z" fill="#232F3E"/><path d="M320.3 63c0 5.4.1 9.9-2.6 14.7-2.2 3.9-5.6 6.3-9.4 6.3-5.2 0-8.2-4-8.2-9.9 0-11.7 10.5-13.8 20.2-13.8v2.7zm16.4-4.2c0-13.8-.3-22.4-9.4-30.4-8.1-7.1-21.5-9.6-31.8-9.6-19.9 0-42.2 7.4-46.6 32.1l-.2 1c17.1 0 35.3-.2 52.6-.2-1.1-7.9-5-11.6-10.9-11.6-6.3 0-10 4.5-11 11.1-1.5-1.6-3-3.2-5-4.4-3.2-2-6.6-2.7-10.3-2.7-9.5 0-18 7.6-18 23.6 0 13.4 6.3 24.4 19.7 24.4 8.8 0 13.7-3.4 18.4-8.8.9 1.5 1.8 2.8 3 4 2.9 2.9 7.2 5.2 12.1 5.2 6.2 0 10.8-2.8 14.1-7.6 4.4-6.4 4.5-14.9 4.5-23.7l-.2-2.4zm-69.7 20c-5.1 0-6.5-4.5-6.5-10 0-5.6 2-10.3 6.5-10.3 4.4 0 6.3 4.3 6.3 10.1 0 5.7-1.5 10.2-6.3 10.2z" fill="#232F3E"/><path d="M450.9 63c0 5.4.1 9.9-2.6 14.7-2.2 3.9-5.6 6.3-9.4 6.3-5.2 0-8.2-4-8.2-9.9 0-11.7 10.5-13.8 20.2-13.8v2.7zm16.4-4.2c0-13.8-.3-22.4-9.4-30.4-8.1-7.1-21.5-9.6-31.8-9.6-19.9 0-42.2 7.4-46.6 32.1l-.2 1c17.1 0 35.3-.2 52.6-.2-1.1-7.9-5-11.6-10.9-11.6-6.3 0-10 4.5-11 11.1-1.5-1.6-3-3.2-5-4.4-3.2-2-6.6-2.7-10.3-2.7-9.5 0-18 7.6-18 23.6 0 13.4 6.3 24.4 19.7 24.4 8.8 0 13.7-3.4 18.4-8.8.9 1.5 1.8 2.8 3 4 2.9 2.9 7.2 5.2 12.1 5.2 6.2 0 10.8-2.8 14.1-7.6 4.4-6.4 4.5-14.9 4.5-23.7l-.2-2.4zm-69.7 20c-5.1 0-6.5-4.5-6.5-10 0-5.6 2-10.3 6.5-10.3 4.4 0 6.3 4.3 6.3 10.1 0 5.7-1.5 10.2-6.3 10.2z" fill="#232F3E"/><path d="M475.5 7.1c-5.2 0-9.4.9-12.1 3.4-3.7 3.3-4.9 8.8-4.9 16.7 0 11.3 4.4 16.9 13 16.9 3.2 0 5.6-.5 8.5-1.8V7.1h-4.5zm16.1 95.4c0 4.8.4 10.4-2.7 15.2-2.6 4-7.1 6.5-14 6.5-7 0-11.9-3.1-15-8.8-1.2-2.2-2.3-6.1-2.6-8.3l-12.8-48.2c-.1-.6.3-1.1.9-1.1h16.9c.7 0 1.3.5 1.5 1.2l5.2 26.8c1.5 7.8 2.5 14.2 2.5 14.2s1-4 2.5-14.2l5-26.8c.1-.7.7-1.2 1.5-1.2h16.6c.6 0 1.1.5.9 1.1l-10.7 48.2c-.2 1-.8 3.5-.8 3.5l.1-.1z" fill="#232F3E"/><path d="M538.7 104.6h-16.3c-.8-.1-1.4-.6-1.5-1.4l-.1-1.5c-3 3.1-7.1 4.5-11.7 4.5-9.4 0-14.8-7.3-14.8-18.1V38.9c0-.8.7-1.5 1.6-1.5h16.3c.8 0 1.5.7 1.5 1.5V84c0 2.7 0 7.5 1.1 9.5 1 1.8 2.8 2.4 5.2 2.4 2.3 0 4.3-1.3 5.3-3.3 1.3-2.5 1.5-6.2 1.5-9.5V38.9c0-.8.7-1.5 1.6-1.5h16.3c.8 0 1.5.7 1.5 1.5l.1 64.3c0 .8-.7 1.5-1.6 1.5z" fill="#232F3E"/></svg></div>
+        <div class="icon"><span class="brand-logo brand-amazon">amazon</span></div>
         <h3>Amazon</h3>
         <p>A9 algorithm optimization with keyword-weighted titles and bullet structures that rank.</p>
       </div>
 
       <div class="platform-card">
-        <div class="icon"><svg viewBox="0 0 109 125" xmlns="http://www.w3.org/2000/svg"><path d="M80.7 25.9l-2.6-.2c0-.3.1-.6.1-.9-.4-14.2-12-25.7-26.3-25.7S26.1 10.6 25.7 24.8c0 .3 0 .6.1.9l-2.6.2C12.7 27 5.4 35.1 5.4 45.5v53.2c0 11.6 9.4 21 21 21h50.3c11.6 0 21-9.4 21-21V45.5c0-10.4-7.2-18.5-17-19.6zm-28.8-15c10.3 0 18.8 8.1 19.4 18.3l-38.8.5C33.2 19.2 41.6 10.9 51.9 10.9z" fill="#95BF47"/><path d="M65.7 44.6c-.3 0-.5.2-.5.5l-2.7 28.4c0 .2.1.3.2.4l12.3 8.7c.2.1.5.1.6-.1.2-.2.2-.4.1-.6L66 44.9c-.1-.2-.2-.3-.3-.3z" fill="#fff"/><path d="M65.7 44.6c-.3 0-.5.2-.5.5l-2.7 28.4c0 .2.1.3.2.4l12.3 8.7c.2.1.5.1.6-.1.2-.2.2-.4.1-.6L66 44.9c-.1-.2-.2-.3-.3-.3z" fill="rgba(255,255,255,.4)"/><path d="M65.2 44.3c-.1-.1-.2-.2-.4-.2h-.1c-.2 0-.3.2-.3.4l-2.7 28.4c0 .2.1.3.2.4l12.3 8.7c.2.1.4.1.5 0 .2-.1.2-.3.2-.5L65.2 44.3z" fill="#fff"/></svg></div>
+        <div class="icon"><span class="brand-logo brand-shopify"></span></div>
         <h3>Shopify</h3>
         <p>Brand-oriented descriptions and SEO meta content that drives organic traffic to your store.</p>
       </div>
 
       <div class="platform-card">
-        <div class="icon"><svg viewBox="0 0 132 40" xmlns="http://www.w3.org/2000/svg"><path d="M12.1 35.3C5.4 35.3 0 29.9 0 23.2c0-6.7 5.4-12.1 12.1-12.1 3.1 0 5.9 1.1 8.1 3l-2.4 2.8c-1.5-1.3-3.5-2.1-5.7-2.1-4.6 0-8.3 3.7-8.3 8.4s3.7 8.4 8.3 8.4c2.2 0 4.2-.8 5.7-2.1l2.4 2.8c-2.2 1.9-5 3-8.1 3zm22.6 0c-6.7 0-12.1-5.4-12.1-12.1s5.4-12.1 12.1-12.1 12.1 5.4 12.1 12.1-5.4 12.1-12.1 12.1zm0-20.5c-4.6 0-8.3 3.7-8.3 8.4s3.7 8.4 8.3 8.4 8.3-3.7 8.3-8.4-3.7-8.4-8.3-8.4zm33.5 19.9h-3.8v-17h-6.5v-3.2h16.8v3.2h-6.5v17zm18.1 0h-3.8V11.5h3.8v23.2zm17.1.6c-6.7 0-12.1-5.4-12.1-12.1s5.4-12.1 12.1-12.1c3.1 0 5.9 1.1 8.1 3l-2.4 2.8c-1.5-1.3-3.5-2.1-5.7-2.1-4.6 0-8.3 3.7-8.3 8.4s3.7 8.4 8.3 8.4c2.2 0 4.2-.8 5.7-2.1l2.4 2.8c-2.2 1.9-5 3-8.1 3zm28.6-.6h-16.1V11.5h15.5v3.2h-11.7v6.9h10.8v3.2h-10.8v6.8h12.3v3.1z" fill="#F1641E"/></svg></div>
+        <div class="icon"><span class="brand-logo brand-etsy">Etsy</span></div>
         <h3>Etsy</h3>
         <p>Scenario-based search optimization that connects handmade and vintage items with the right buyers.</p>
       </div>
 
       <div class="platform-card">
-        <div class="icon"><svg viewBox="0 0 140 48" xmlns="http://www.w3.org/2000/svg"><text x="0" y="38" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="bold"><tspan fill="#E53238">e</tspan><tspan fill="#0064D2">B</tspan><tspan fill="#F5AF02">a</tspan><tspan fill="#86B817">y</tspan></text></svg></div>
+        <div class="icon"><span class="brand-logo brand-ebay"><span class="e1">e</span><span class="b">B</span><span class="a">a</span><span class="y">y</span></span></div>
         <h3>eBay</h3>
         <p>Structured titles with item specifics that maximize visibility in eBay's Cassini search engine.</p>
       </div>
