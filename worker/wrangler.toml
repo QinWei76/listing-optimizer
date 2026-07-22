@@ -1,0 +1,7 @@
+name = "listingai-api"
+main = "worker.js"
+compatibility_date = "2026-07-22"
+
+[vars]
+# DEEPSEEK_API_KEY is set via wrangler secret, not stored here.
+# Run: wrangler secret put DEEPSEEK_API_KEY
