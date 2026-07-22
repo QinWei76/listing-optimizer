@@ -69,6 +69,8 @@
         .platform-guide-body .guide-tab { padding: 6px 14px; border-radius: 6px; background: #1e293b; color: #64748b; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
         .platform-guide-body .guide-tab:hover { border-color: #2563eb; color: #e2e8f0; }
         .platform-guide-body .guide-tab.active { background: #2563eb; color: white; }
+.platform-guide-body .guide-tab svg { height: 16px; width: auto; vertical-align: middle; margin-right: 4px; display: inline-block; }
+.platform-guide-body .guide-tab.active svg [fill]:not([fill="none"]) { fill: white !important; }
         .platform-guide-body .guide-steps { display: none; }
         .platform-guide-body .guide-steps.visible { display: block; }
         .platform-guide-body .guide-step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #1e293b; }
@@ -144,10 +146,10 @@
             </div>
             <div class="platform-guide-body">
                 <div class="guide-tabs">
-                    <div class="guide-tab active" data-platform="amazon" onclick="switchGuideTab('amazon')">🟠 Amazon</div>
-                    <div class="guide-tab" data-platform="shopify" onclick="switchGuideTab('shopify')">🟢 Shopify</div>
-                    <div class="guide-tab" data-platform="etsy" onclick="switchGuideTab('etsy')">🟠 Etsy</div>
-                    <div class="guide-tab" data-platform="ebay" onclick="switchGuideTab('ebay')">🔴 eBay</div>
+                    <div class="guide-tab active" data-platform="amazon" onclick="switchGuideTab('amazon')"><svg viewBox="0 0 603 182" xmlns="http://www.w3.org/2000/svg"><path d="M374 143c-16.5 13-40.5 19.8-61 19.8-28.9 0-54.8-10.7-74.5-28.5-1.5-1.4-.2-3.3 1.7-2.2 21.2 12.4 47.5 19.8 74.7 19.8 18.3 0 38.4-3.8 57.4-11.6 2.9-1.2 5.3 1.9 3.4 3.4l-1.7-.7z" fill="#FF9900"/><path d="M382.3 133.3c-2.1-2.7-14-1.3-19.3-.6-1.6.2-1.8-1.2-.4-2.2 9.5-6.7 25-9.5 37-5.5 1.4.5 1.2 1.9-.1 2.8-4.6 3.2-15.1 10.2-15.1 10.2s0-2.5-2.1-4.7z" fill="#FF9900"/><text x="30" y="120" font-family="Arial" font-size="140" font-weight="bold" fill="#232F3E">amazon</text></svg> Amazon</div>
+                    <div class="guide-tab" data-platform="shopify" onclick="switchGuideTab('shopify')"><svg viewBox="0 0 109 125" xmlns="http://www.w3.org/2000/svg"><path d="M80.7 25.9l-2.6-.2c0-.3.1-.6.1-.9-.4-14.2-12-25.7-26.3-25.7S26.1 10.6 25.7 24.8c0 .3 0 .6.1.9l-2.6.2C12.7 27 5.4 35.1 5.4 45.5v53.2c0 11.6 9.4 21 21 21h50.3c11.6 0 21-9.4 21-21V45.5c0-10.4-7.2-18.5-17-19.6zm-28.8-15c10.3 0 18.8 8.1 19.4 18.3l-38.8.5C33.2 19.2 41.6 10.9 51.9 10.9z" fill="#95BF47"/><path d="M65.7 44.6c-.3 0-.5.2-.5.5l-2.7 28.4c0 .2.1.3.2.4l12.3 8.7c.2.1.5.1.6-.1.2-.2.2-.4.1-.6L66 44.9c-.1-.2-.2-.3-.3-.3z" fill="#fff"/></svg> Shopify</div>
+                    <div class="guide-tab" data-platform="etsy" onclick="switchGuideTab('etsy')"><svg viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg"><text x="5" y="32" font-family="Georgia, serif" font-size="36" font-weight="bold" fill="#F1641E">Etsy</text></svg> Etsy</div>
+                    <div class="guide-tab" data-platform="ebay" onclick="switchGuideTab('ebay')"><svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg"><text x="2" y="32" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="bold"><tspan fill="#E53238">e</tspan><tspan fill="#0064D2">B</tspan><tspan fill="#F5AF02">a</tspan><tspan fill="#86B817">y</tspan></text></svg> eBay</div>
                 </div>
                 <div class="guide-steps visible" data-platform="amazon">
                     <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">Go to <strong>Seller Central</strong> → <strong>Inventory</strong> → <strong>Manage Inventory</strong></div></div>
