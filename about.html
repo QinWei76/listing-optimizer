@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — ListingAI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0e1a;
+      --card: #111827;
+      --border: #1e293b;
+      --blue: #2563eb;
+      --purple: #7c3aed;
+      --gradient: linear-gradient(135deg, #2563eb, #7c3aed);
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,14,26,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-size: 1.4rem; font-weight: 700;
+      background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { font-size: .9rem; color: var(--text-muted); transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: #fff; }
+
+    /* SECTION */
+    section { padding: 80px 0; }
+    .section-title {
+      text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 12px;
+    }
+    .section-subtitle {
+      text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto 48px;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 100px 20px 60px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(37,99,235,.12) 0%, transparent 60%);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      max-width: 700px;
+      margin: 0 auto 20px;
+      background: linear-gradient(to right, #fff, #c4b5fd);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* PERSONA CARDS */
+    .personas-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;
+    }
+    .persona-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 28px 24px;
+    }
+    .persona-card h3 { font-size: 1.1rem; margin-bottom: 16px; }
+    .pain { display: flex; align-items: flex-start; gap: 8px; font-size: .88rem; color: var(--red); margin-bottom: 8px; }
+    .pain::before { content: "✗"; font-weight: 700; flex-shrink: 0; }
+    .quote {
+      font-style: italic; font-size: .88rem; color: var(--text); margin: 16px 0;
+      padding: 12px 16px; border-left: 3px solid var(--blue); background: rgba(37,99,235,.06);
+      border-radius: 0 8px 8px 0;
+    }
+    .solution { display: flex; align-items: flex-start; gap: 8px; font-size: .88rem; color: var(--green); }
+    .solution::before { content: "✓"; font-weight: 700; flex-shrink: 0; }
+
+    /* STEPS */
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px;
+    }
+    .step-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 32px 24px; text-align: center; position: relative;
+    }
+    .step-number {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--gradient); color: #fff; font-weight: 700; font-size: 1.1rem;
+      margin-bottom: 16px;
+    }
+    .step-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    .step-card p { font-size: .88rem; color: var(--text-muted); }
+
+    /* PLATFORMS */
+    .platforms-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;
+    }
+    .platform-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 28px 24px; text-align: center; transition: border-color .25s;
+    }
+    .platform-card:hover { border-color: var(--blue); }
+    .platform-card .icon { font-size: 2rem; margin-bottom: 12px; }
+    .platform-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    .platform-card p { font-size: .85rem; color: var(--text-muted); }
+
+    /* CTA */
+    .cta-section {
+      text-align: center; padding: 80px 20px;
+      background: radial-gradient(ellipse at 50% 100%, rgba(124,58,237,.12) 0%, transparent 60%);
+    }
+    .cta-btn {
+      display: inline-block; padding: 16px 40px; border-radius: 12px;
+      background: var(--gradient); color: #fff; font-weight: 700; font-size: 1.1rem;
+      transition: opacity .2s;
+    }
+    .cta-btn:hover { opacity: .9; }
+
+    /* FOOTER */
+    footer {
+      text-align: center; padding: 40px 20px;
+      border-top: 1px solid var(--border); color: var(--text-muted); font-size: .85rem;
+    }
+
+    @media (max-width: 600px) {
+      .nav-links { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <a href="index.html" class="logo">ListingAI</a>
+    <div class="nav-links">
+      <a href="index.html#tools">Tools</a>
+      <a href="index.html#languages">Languages</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="about.html" class="active">How It Works</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <h1>Built for Sellers Who Want Results, Not Excuses</h1>
+  <p>Whether you're launching your first product or managing 500 SKUs, ListingAI adapts to your workflow.</p>
+</header>
+
+<!-- WHO IS THIS FOR -->
+<section id="personas">
+  <div class="container">
+    <h2 class="section-title">Who Is This Built For?</h2>
+    <p class="section-subtitle">Four types of sellers who stopped wasting time and started converting.</p>
+    <div class="personas-grid">
+
+      <div class="persona-card">
+        <h3>🌱 New Seller</h3>
+        <div class="pain">Spent 45 minutes on a title that nobody searches for</div>
+        <div class="pain">Bullet points read like a spec sheet, not a sales pitch</div>
+        <div class="quote">"I knew my product was good — I just couldn't make the listing match."</div>
+        <div class="solution">AI analyzes 10,000+ top-performing listings and gives you a title that actually ranks.</div>
+      </div>
+
+      <div class="persona-card">
+        <h3>📈 Growing Seller</h3>
+        <div class="pain">Updating listings is slow and repetitive</div>
+        <div class="pain">Trying to sell in Germany but your English copy doesn't convert</div>
+        <div class="quote">"I was spending 2 hours per listing. Now it takes 2 minutes."</div>
+        <div class="solution">Multi-language generation creates native-quality German, French, Spanish copy — not translations.</div>
+      </div>
+
+      <div class="persona-card">
+        <h3>🏷️ Brand Owner</h3>
+        <div class="pain">Different sellers write your product differently</div>
+        <div class="pain">No consistent brand voice across 100+ SKUs</div>
+        <div class="quote">"Our brand voice was inconsistent across 3 marketplaces and 200 listings."</div>
+        <div class="solution">Consistent tone across every listing, every marketplace, every language.</div>
+      </div>
+
+      <div class="persona-card">
+        <h3>🏢 Agency / VA</h3>
+        <div class="pain">Managing 50+ clients means 50+ listing styles</div>
+        <div class="pain">Clients want results yesterday</div>
+        <div class="quote">"We used to have 3 people writing listings. Now we have 1."</div>
+        <div class="solution">Bulk generation + consistent quality across all clients.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" style="background:rgba(17,24,39,.5);">
+  <div class="container">
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-subtitle">Three steps. Two minutes. One optimized listing.</p>
+    <div class="steps-grid">
+
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>Paste Your Product Info</h3>
+        <p>Enter your product name, features, target audience, and any keywords you want to rank for.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>AI Generates Optimized Content</h3>
+        <p>Our AI analyzes top-performing listings and generates optimized titles, bullets, and descriptions.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>Copy & Publish</h3>
+        <p>Review suggestions, tweak if needed, copy to your listing. Each result includes a platform-specific guide.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORMS -->
+<section id="platforms">
+  <div class="container">
+    <h2 class="section-title">Platforms We Support</h2>
+    <p class="section-subtitle">Tailored optimization for every major marketplace.</p>
+    <div class="platforms-grid">
+
+      <div class="platform-card">
+        <div class="icon">🛒</div>
+        <h3>Amazon</h3>
+        <p>A9 algorithm optimization with keyword-weighted titles and bullet structures that rank.</p>
+      </div>
+
+      <div class="platform-card">
+        <div class="icon">🏪</div>
+        <h3>Shopify</h3>
+        <p>Brand-oriented descriptions and SEO meta content that drives organic traffic to your store.</p>
+      </div>
+
+      <div class="platform-card">
+        <div class="icon">🎨</div>
+        <h3>Etsy</h3>
+        <p>Scenario-based search optimization that connects handmade and vintage items with the right buyers.</p>
+      </div>
+
+      <div class="platform-card">
+        <div class="icon">📦</div>
+        <h3>eBay</h3>
+        <p>Structured titles with item specifics that maximize visibility in eBay's Cassini search engine.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <h2 class="section-title">Ready to Optimize?</h2>
+    <p class="section-subtitle">Join 10,000+ sellers who create better listings in less time.</p>
+    <a href="index.html" class="cta-btn">Start Optimizing → Free</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>&copy; 2026 ListingAI. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

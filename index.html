@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ListingAI — Turn Your Listings Into Sales Machines</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0e1a;
+      --card: #111827;
+      --border: #1e293b;
+      --blue: #2563eb;
+      --purple: #7c3aed;
+      --gradient: linear-gradient(135deg, #2563eb, #7c3aed);
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,14,26,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-size: 1.4rem; font-weight: 700;
+      background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { font-size: .9rem; color: var(--text-muted); transition: color .2s; }
+    .nav-links a:hover { color: #fff; }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 100px 20px 60px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(37,99,235,.15) 0%, transparent 60%);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      max-width: 780px;
+      margin: 0 auto 20px;
+      background: linear-gradient(to right, #fff, #c4b5fd);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto 36px;
+    }
+    .hero-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      padding: 14px 32px; border-radius: 10px;
+      background: var(--gradient); color: #fff; font-weight: 600; font-size: .95rem;
+      border: none; cursor: pointer; transition: opacity .2s;
+    }
+    .btn-primary:hover { opacity: .9; }
+    .btn-secondary {
+      padding: 14px 32px; border-radius: 10px;
+      background: transparent; color: var(--text); font-weight: 600; font-size: .95rem;
+      border: 1px solid var(--border); cursor: pointer; transition: border-color .2s;
+    }
+    .btn-secondary:hover { border-color: var(--blue); }
+    .stats {
+      display: flex; gap: 40px; justify-content: center; margin-top: 56px; flex-wrap: wrap;
+    }
+    .stats span {
+      font-size: .95rem; color: var(--text-muted);
+    }
+    .stats strong {
+      display: block; font-size: 1.6rem; color: #fff; font-weight: 700;
+    }
+
+    /* SECTION */
+    section { padding: 80px 0; }
+    .section-title {
+      text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 12px;
+    }
+    .section-subtitle {
+      text-align: center; color: var(--text-muted); max-width: 560px; margin: 0 auto 48px;
+    }
+
+    /* TOOL CARDS */
+    .tools-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;
+    }
+    .tool-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 28px 24px; display: flex; flex-direction: column; transition: border-color .25s;
+    }
+    .tool-card:hover { border-color: var(--blue); }
+    .tool-card h3 { font-size: 1.15rem; margin-bottom: 8px; }
+    .tool-card p { font-size: .88rem; color: var(--text-muted); margin-bottom: 16px; flex: 1; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+    .tag {
+      font-size: .72rem; padding: 4px 10px; border-radius: 20px;
+      background: rgba(37,99,235,.12); color: #93b4f8; border: 1px solid rgba(37,99,235,.2);
+    }
+    .tool-card .try-link {
+      font-size: .9rem; font-weight: 600; color: var(--blue);
+      transition: color .2s;
+    }
+    .tool-card .try-link:hover { color: var(--purple); }
+
+    /* LANGUAGES */
+    .languages-grid {
+      display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
+    }
+    .lang-chip {
+      padding: 12px 22px; border-radius: 10px;
+      background: var(--card); border: 1px solid var(--border);
+      font-size: .92rem; font-weight: 500;
+    }
+
+    /* PRICING */
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;
+      align-items: start;
+    }
+    .pricing-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 32px 28px; position: relative;
+    }
+    .pricing-card.popular {
+      border-color: var(--blue);
+      box-shadow: 0 0 30px rgba(37,99,235,.15);
+    }
+    .popular-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--gradient); color: #fff; font-size: .75rem; font-weight: 600;
+      padding: 4px 16px; border-radius: 20px;
+    }
+    .pricing-card h3 { font-size: 1.2rem; margin-bottom: 4px; }
+    .pricing-card .price {
+      font-size: 2.2rem; font-weight: 700; margin: 12px 0 20px;
+    }
+    .pricing-card .price span { font-size: .9rem; font-weight: 400; color: var(--text-muted); }
+    .pricing-card ul { list-style: none; margin-bottom: 24px; }
+    .pricing-card li {
+      font-size: .88rem; padding: 6px 0; color: var(--text-muted);
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .pricing-card li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .pricing-btn {
+      display: block; width: 100%; padding: 12px; border-radius: 10px;
+      text-align: center; font-weight: 600; font-size: .9rem; cursor: pointer;
+      border: 1px solid var(--border); background: transparent; color: var(--text);
+      transition: border-color .2s, background .2s;
+    }
+    .pricing-btn:hover { border-color: var(--blue); }
+    .pricing-card.popular .pricing-btn {
+      background: var(--gradient); border-color: transparent; color: #fff;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center; padding: 40px 20px;
+      border-top: 1px solid var(--border); color: var(--text-muted); font-size: .85rem;
+    }
+
+    @media (max-width: 600px) {
+      .nav-links { gap: 16px; }
+      .stats { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <a href="index.html" class="logo">ListingAI</a>
+    <div class="nav-links">
+      <a href="#tools">Tools</a>
+      <a href="#languages">Languages</a>
+      <a href="#pricing">Pricing</a>
+      <a href="about.html">How It Works</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <h1>Turn Your Listings Into Sales Machines</h1>
+  <p>AI-powered product listing optimizer for Amazon, Shopify & Etsy sellers. Generate high-ranking titles, bullet points, and descriptions in seconds.</p>
+  <div class="hero-buttons">
+    <a href="title-optimizer.html" class="btn-primary">Optimize My Listing</a>
+    <a href="about.html" class="btn-secondary">See How It Works</a>
+  </div>
+  <div class="stats">
+    <span><strong>10K+</strong>Sellers Optimized</span>
+    <span><strong>500K+</strong>Listings Generated</span>
+    <span><strong>+38%</strong>Avg. Sales Increase</span>
+  </div>
+</header>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="container">
+    <h2 class="section-title">Powerful Tools for Every Listing</h2>
+    <p class="section-subtitle">Four AI-driven tools that cover every part of your product listing workflow.</p>
+    <div class="tools-grid">
+
+      <div class="tool-card">
+        <h3>Title Optimizer</h3>
+        <p>Generate SEO-optimized titles with 3 variants and relevance scoring to maximize visibility.</p>
+        <div class="tags">
+          <span class="tag">Amazon A9 Compatible</span>
+          <span class="tag">Keyword Density</span>
+          <span class="tag">Character Limit Aware</span>
+        </div>
+        <a href="title-optimizer.html" class="try-link">Try Now →</a>
+      </div>
+
+      <div class="tool-card">
+        <h3>Bullet Points Generator</h3>
+        <p>Create 5 benefit-driven bullet points that highlight your product's strongest selling points.</p>
+        <div class="tags">
+          <span class="tag">Benefit-Driven</span>
+          <span class="tag">SEO Keywords</span>
+          <span class="tag">Conversion Focused</span>
+        </div>
+        <a href="bullet-points.html" class="try-link">Try Now →</a>
+      </div>
+
+      <div class="tool-card">
+        <h3>Product Description</h3>
+        <p>Produce HTML-ready product descriptions with storytelling that converts browsers into buyers.</p>
+        <div class="tags">
+          <span class="tag">HTML Ready</span>
+          <span class="tag">Storytelling</span>
+          <span class="tag">Multi-Platform</span>
+        </div>
+        <a href="description.html" class="try-link">Try Now →</a>
+      </div>
+
+      <div class="tool-card">
+        <h3>Keyword Generator</h3>
+        <p>Discover high-search-volume, low-competition keywords to fuel your listing optimization.</p>
+        <div class="tags">
+          <span class="tag">Search Volume</span>
+          <span class="tag">Competition Score</span>
+          <span class="tag">Long-tail Keywords</span>
+        </div>
+        <a href="keywords.html" class="try-link">Try Now →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- LANGUAGES -->
+<section id="languages" style="background:rgba(17,24,39,.5);">
+  <div class="container">
+    <h2 class="section-title">7 Languages, Native Quality</h2>
+    <p class="section-subtitle">AI generates native-quality copy — not translations. Reach every marketplace in their own language.</p>
+    <div class="languages-grid">
+      <div class="lang-chip">🇬🇧 English</div>
+      <div class="lang-chip">🇩🇪 German</div>
+      <div class="lang-chip">🇫🇷 French</div>
+      <div class="lang-chip">🇪🇸 Spanish</div>
+      <div class="lang-chip">🇮🇹 Italian</div>
+      <div class="lang-chip">🇯🇵 Japanese</div>
+      <div class="lang-chip">🇨🇳 Chinese (Simplified)</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <h2 class="section-title">Simple, Transparent Pricing</h2>
+    <p class="section-subtitle">Start free. Upgrade when you're ready to scale.</p>
+    <div class="pricing-grid">
+
+      <!-- Free -->
+      <div class="pricing-card">
+        <h3>Free</h3>
+        <div class="price">$0<span>/month</span></div>
+        <ul>
+          <li>3 generations per day</li>
+          <li>All 4 tools included</li>
+          <li>🌍 7 languages (English + 6 EU/JP)</li>
+          <li>Community support</li>
+        </ul>
+        <a href="#" class="pricing-btn">Get Started</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="pricing-card popular">
+        <div class="popular-badge">Most Popular</div>
+        <h3>Pro</h3>
+        <div class="price">$9.90<span>/month</span></div>
+        <ul>
+          <li>Unlimited generations</li>
+          <li>All 4 tools included</li>
+          <li>🌍 Generate in all 7 languages</li>
+          <li>Advanced keyword analysis per market</li>
+          <li>Platform-specific SEO optimization</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#" class="pricing-btn">Start Pro Trial</a>
+      </div>
+
+      <!-- Business -->
+      <div class="pricing-card">
+        <h3>Business</h3>
+        <div class="price">$29.90<span>/month</span></div>
+        <ul>
+          <li>Everything in Pro</li>
+          <li>🌍 Multi-market expansion kit — one input → 7 marketplace-ready listings</li>
+          <li>Bulk optimization (50+ listings)</li>
+          <li>Competitor analysis</li>
+          <li>API access</li>
+          <li>Dedicated support</li>
+        </ul>
+        <a href="#" class="pricing-btn">Contact Sales</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>&copy; 2026 ListingAI. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
