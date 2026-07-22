@@ -5,98 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keyword Generator - ListingAI</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #0a0e1a; color: #e2e8f0; min-height: 100vh; }
-        nav { background: #111827; border-bottom: 1px solid #1e293b; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
-        .nav-logo { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .nav-links { display: flex; gap: 24px; }
-        .nav-links a { color: #94a3b8; text-decoration: none; font-size: 14px; }
-        .nav-links a:hover { color: #e2e8f0; }
-        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        h1 { font-size: 28px; margin-bottom: 8px; }
-        .subtitle { color: #64748b; margin-bottom: 32px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 6px; }
-        input, textarea, select { width: 100%; padding: 12px 16px; background: #111827; border: 1px solid #1e293b; border-radius: 8px; color: #e2e8f0; font-size: 15px; }
-        textarea { min-height: 100px; resize: vertical; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: #2563eb; }
-        .hint { font-size: 12px; color: #475569; margin-top: 4px; }
-        .generate-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .generate-btn:hover { opacity: 0.9; }
-        .try-example { background: none; border: 1px solid #1e293b; color: #94a3b8; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 8px; }
-        .try-example:hover { border-color: #2563eb; color: #e2e8f0; }
-        .loading { display: none; text-align: center; padding: 40px; }
-        .loading.visible { display: block; }
-        .spinner { width: 40px; height: 40px; border: 3px solid #1e293b; border-top-color: #2563eb; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .results-area { margin-top: 32px; background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 24px; display: none; }
-        .results-area.visible { display: block; }
-        .results-area h2 { font-size: 20px; margin-bottom: 20px; }
-        .result-item { background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
-        .copy-btn { background: #1e293b; color: #94a3b8; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 8px; }
-        .copy-btn:hover { background: #2563eb; color: white; }
-        .disclaimer { font-size: 11px; color: #475569; margin-top: 16px; text-align: center; }
-        footer { text-align: center; padding: 32px; color: #475569; font-size: 13px; border-top: 1px solid #1e293b; margin-top: 60px; }
-        .paywall-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-        .paywall-overlay.visible { display: flex; }
-        .paywall-card { background: #1a1a2e; border: 1px solid #2d2d44; border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; position: relative; color: #e2e8f0; text-align: center; }
-        .paywall-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
-        .paywall-card h2 { font-size: 22px; margin-bottom: 8px; color: #f1f5f9; }
-        .paywall-subtitle { color: #94a3b8; margin-bottom: 8px; }
-        .paywall-desc { color: #64748b; font-size: 14px; margin-bottom: 24px; }
-        .paywall-plans { display: flex; gap: 12px; margin-bottom: 20px; }
-        .paywall-plan { flex: 1; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 16px 12px; text-align: center; }
-        .paywall-plan.featured { border-color: #2563eb; }
-        .plan-badge { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 8px; }
-        .plan-name { font-size: 13px; color: #94a3b8; margin-bottom: 4px; }
-        .plan-price { font-size: 24px; font-weight: 700; color: #f1f5f9; }
-        .plan-price span { font-size: 13px; color: #64748b; }
-        .plan-save { color: #4ade80; font-size: 12px; margin-bottom: 8px; }
-        .paywall-plan ul { list-style: none; padding: 0; margin: 12px 0 0; text-align: left; }
-        .paywall-plan li { font-size: 12px; color: #94a3b8; padding: 3px 0; }
-        .paywall-cta { width: 100%; padding: 12px; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
-        .paywall-later { width: 100%; padding: 8px; background: transparent; color: #64748b; border: none; cursor: pointer; font-size: 13px; }
-        .paywall-footer { color: #475569; font-size: 11px; margin-top: 12px; }
-        .platform-guide { margin-top: 24px; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; overflow: hidden; }
-        .platform-guide-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; cursor: pointer; background: #0f172a; }
-        .platform-guide-header:hover { background: #1e293b; }
-        .platform-guide-header h3 { font-size: 15px; color: #94a3b8; margin: 0; }
-        .platform-guide-header .toggle-icon { color: #64748b; transition: transform 0.3s; }
-        .platform-guide-header.open .toggle-icon { transform: rotate(180deg); }
-        .platform-guide-body { display: none; padding: 0 20px 20px; }
-        .platform-guide-body.visible { display: block; }
-        .platform-guide-body .guide-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .platform-guide-body .guide-tab { padding: 6px 14px; border-radius: 6px; background: #1e293b; color: #64748b; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
-        .platform-guide-body .guide-tab:hover { border-color: #2563eb; color: #e2e8f0; }
-        .platform-guide-body .guide-tab.active { background: #2563eb; color: white; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: radial-gradient(ellipse at 50% 0%, #1a1f3a 0%, #0a0e1a 60%); color: #e2e8f0; min-height: 100vh; }
+nav { background: rgba(10,14,26,.8); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,.06); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+.nav-logo { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+.nav-links { display: flex; gap: 24px; align-items: center; }
+.nav-links a { color: #94a3b8; text-decoration: none; font-size: 14px; transition: color .2s; }
+.nav-links a:hover { color: #e2e8f0; }
+.dropdown { position: relative; }
+.dropdown-toggle { cursor: pointer; color: #94a3b8; font-size: 14px; transition: color .2s; }
+.dropdown-toggle:hover { color: #e2e8f0; }
+.dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: rgba(30,41,59,.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 8px 0; min-width: 180px; margin-top: 8px; z-index: 100; }
+.dropdown:hover .dropdown-menu { display: block; }
+.dropdown-menu a { display: block; padding: 8px 16px; color: #94a3b8; text-decoration: none; font-size: 13px; transition: all .15s; }
+.dropdown-menu a:hover { background: rgba(99,102,241,.12); color: #e2e8f0; }
+.container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+h1 { font-size: 32px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 8px; background: linear-gradient(to right, #fff, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { color: #64748b; margin-bottom: 32px; font-size: 16px; }
+.form-group { margin-bottom: 20px; }
+label { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
+input, textarea, select { width: 100%; padding: 14px 16px; background: rgba(17,24,39,.6); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; color: #e2e8f0; font-size: 15px; transition: all .2s ease; }
+textarea { min-height: 100px; resize: vertical; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: rgba(99,102,241,.5); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+input::placeholder, textarea::placeholder { color: #475569; }
+.hint { font-size: 12px; color: #475569; margin-top: 4px; }
+.btn-row { display: flex; gap: 10px; align-items: center; }
+.generate-btn { flex: 1; padding: 14px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 16px rgba(99,102,241,.3); transition: all .2s ease; }
+.generate-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,.4); }
+.try-example { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #94a3b8; padding: 14px 20px; border-radius: 10px; cursor: pointer; font-size: 14px; transition: all .2s ease; white-space: nowrap; }
+.try-example:hover { background: rgba(255,255,255,.05); border-color: rgba(99,102,241,.3); color: #e2e8f0; }
+.loading { display: none; text-align: center; padding: 40px; }
+.loading.visible { display: block; }
+.spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.05); border-top-color: #6366f1; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.results-area { margin-top: 32px; background: rgba(17,24,39,.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; padding: 28px; display: none; }
+.results-area.visible { display: block; }
+.results-area h2 { font-size: 20px; margin-bottom: 20px; font-weight: 700; }
+.result-item { background: rgba(15,23,42,.8); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+.result-item div.md-content { line-height: 1.7; color: #cbd5e1; }
+.result-item div.md-content h3 { color: #e2e8f0; margin: 20px 0 10px; font-size: 18px; }
+.result-item div.md-content h4 { color: #e2e8f0; margin: 16px 0 8px; font-size: 16px; }
+.result-item div.md-content strong { color: #f1f5f9; }
+.result-item div.md-content code { background: rgba(99,102,241,.15); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #a5b4fc; }
+.result-item div.md-content pre { background: rgba(0,0,0,.3); border-radius: 8px; padding: 12px 16px; overflow-x: auto; margin: 12px 0; }
+.result-item div.md-content pre code { background: none; padding: 0; }
+.result-item div.md-content hr { border: none; border-top: 1px solid rgba(255,255,255,.08); margin: 16px 0; }
+.copy-btn { background: rgba(255,255,255,.06); color: #94a3b8; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 10px; transition: all .2s; }
+.copy-btn:hover { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+.disclaimer { font-size: 11px; color: #475569; margin-top: 16px; text-align: center; }
+footer { text-align: center; padding: 32px; color: #475569; font-size: 13px; border-top: 1px solid rgba(255,255,255,.06); margin-top: 60px; }
+.paywall-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
+.paywall-overlay.visible { display: flex; }
+.paywall-card { background: rgba(26,26,46,.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.08); border-radius: 20px; padding: 32px; max-width: 420px; width: 90%; position: relative; color: #e2e8f0; text-align: center; }
+.paywall-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; }
+.paywall-card h2 { font-size: 22px; margin-bottom: 8px; color: #f1f5f9; }
+.paywall-subtitle { color: #94a3b8; margin-bottom: 8px; }
+.paywall-desc { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+.paywall-plans { display: flex; gap: 12px; margin-bottom: 20px; }
+.paywall-plan { flex: 1; background: rgba(15,23,42,.8); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 16px 12px; text-align: center; }
+.paywall-plan.featured { border-color: rgba(99,102,241,.5); }
+.plan-badge { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 8px; }
+.plan-name { font-size: 13px; color: #94a3b8; margin-bottom: 4px; }
+.plan-price { font-size: 24px; font-weight: 700; color: #f1f5f9; }
+.plan-price span { font-size: 13px; color: #64748b; }
+.plan-save { color: #4ade80; font-size: 12px; margin-bottom: 8px; }
+.paywall-plan ul { list-style: none; padding: 0; margin: 12px 0 0; text-align: left; }
+.paywall-plan li { font-size: 12px; color: #94a3b8; padding: 3px 0; }
+.paywall-cta { width: 100%; padding: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 8px; box-shadow: 0 4px 16px rgba(99,102,241,.3); transition: all .2s; }
+.paywall-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,.4); }
+.paywall-later { width: 100%; padding: 8px; background: transparent; color: #64748b; border: none; cursor: pointer; font-size: 13px; }
+.paywall-footer { color: #475569; font-size: 11px; margin-top: 12px; }
+.platform-guide { margin-top: 32px; background: rgba(15,23,42,.5); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; overflow: hidden; }
+.platform-guide-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; cursor: pointer; background: transparent; transition: background .2s; }
+.platform-guide-header:hover { background: rgba(255,255,255,.03); }
+.platform-guide-header h3 { font-size: 15px; color: #94a3b8; margin: 0; font-weight: 600; }
+.platform-guide-header .toggle-icon { color: #64748b; transition: transform .3s; }
+.platform-guide-header.open .toggle-icon { transform: rotate(180deg); }
+.platform-guide-body { display: none; padding: 0 20px 20px; }
+.platform-guide-body.visible { display: block; }
+.platform-guide-body .guide-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.platform-guide-body .guide-tab { padding: 8px 16px; border-radius: 8px; background: rgba(30,41,59,.6); color: #64748b; font-size: 13px; cursor: pointer; border: 1px solid rgba(255,255,255,.06); transition: all .2s; font-weight: 500; }
+.platform-guide-body .guide-tab:hover { border-color: rgba(99,102,241,.3); color: #e2e8f0; }
+.platform-guide-body .guide-tab.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-color: transparent; }
 .platform-guide-body .guide-tab .tab-logo { display: inline-flex; align-items: center; margin-right: 6px; vertical-align: middle; font-weight: 700; font-size: 0.75rem; line-height: 1; }
-
 .platform-guide-body .guide-tab.active .tab-logo { color: white; }
-
-        .platform-guide-body .guide-steps { display: none; }
-        .platform-guide-body .guide-steps.visible { display: block; }
-        .platform-guide-body .guide-step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #1e293b; }
-        .platform-guide-body .guide-step:last-child { border-bottom: none; }
-        .platform-guide-body .guide-step-num { width: 24px; height: 24px; border-radius: 50%; background: #2563eb; color: white; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .platform-guide-body .guide-step-text { font-size: 14px; color: #cbd5e1; line-height: 1.5; }
-        .platform-guide-body .guide-step-text strong { color: #e2e8f0; }
+.platform-guide-body .guide-steps { display: none; }
+.platform-guide-body .guide-steps.visible { display: block; }
+.platform-guide-body .guide-step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+.platform-guide-body .guide-step:last-child { border-bottom: none; }
+.platform-guide-body .guide-step-num { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.platform-guide-body .guide-step-text { font-size: 14px; color: #cbd5e1; line-height: 1.5; }
+.platform-guide-body .guide-step-text strong { color: #e2e8f0; }
+@media (max-width: 600px) {
+    .btn-row { flex-direction: column; }
+    .try-example { width: 100%; text-align: center; }
+}
     </style>
 </head>
 <body>
     <nav>
-        <div class="nav-logo">ListingAI</div>
+        <a href="index.html" class="nav-logo">ListingAI</a>
         <div class="nav-links">
-            <a href="title-optimizer.html">Title Optimizer</a>
-            <a href="bullet-points.html">Bullet Points</a>
-            <a href="product-description.html">Description</a>
-            <a href="keyword-generator.html">Keywords</a>
+            <div class="dropdown">
+                <span class="dropdown-toggle">Tools ▾</span>
+                <div class="dropdown-menu">
+                    <a href="title-optimizer.html">🏷️ Title Optimizer</a>
+                    <a href="bullet-points.html">📝 Bullet Points</a>
+                    <a href="keyword-generator.html">🔍 Keyword Generator</a>
+                    <a href="product-description.html">📄 Description Generator</a>
+                </div>
+            </div>
             <a href="about.html">How It Works</a>
+            <a href="index.html#pricing">Pricing</a>
         </div>
     </nav>
 
     <div class="container">
-        <h1>🔑 Keyword Generator</h1>
-        <p class="subtitle">Discover high-impact keywords to maximize your product visibility</p>
+        <h1>🔍 Keyword Generator</h1>
+        <p class="subtitle">Discover high-value keywords to power your listing optimization</p>
 
         <div class="form-group">
             <label for="productName">Product Name</label>
@@ -127,18 +153,20 @@
             <div class="hint">AI generates native-quality copy for each marketplace — not translations</div>
         </div>
 
-        <button class="generate-btn" onclick="generateKeywords()">✨ Generate Keywords</button>
-        <button class="try-example" onclick="loadExample()">Try an example</button>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Analyzing keywords and generating suggestions...</p>
+        <div class="btn-row">
+            <button class="generate-btn" onclick="generateKeywords()">✨ Generate Keywords</button>
+            <button class="try-example" onclick="loadExample()">📋 Try Example</button>
         </div>
 
-        <div class="results-area" id="results">
-            <h2>📋 Keyword Suggestions</h2>
-            <div id="resultsContent"></div>
-            <p class="disclaimer">AI-generated suggestions. Validate keywords with your platform's search data before publishing.</p>
+        <div class="loading" id="loadingArea">
+            <div class="spinner"></div>
+            <p style="color: #94a3b8;">AI is analyzing keywords...</p>
+        </div>
+
+        <div class="results-area" id="resultsArea">
+            <h2>Keyword Suggestions</h2>
+            <div id="resultsContainer"></div>
+            <p class="disclaimer">⚠️ AI-generated suggestions. Validate keywords with your platform's search data before publishing.</p>
         </div>
 
         <div class="platform-guide">
@@ -178,7 +206,7 @@
     </div>
 
     <footer>
-        <p>© 2024 ListingAI. AI-powered product listing optimization.</p>
+        <p>© 2026 ListingAI. AI-powered e-commerce listing optimization.</p>
     </footer>
 
     <div class="paywall-overlay" id="paywallModal">
@@ -208,79 +236,45 @@
     </div>
 
     <script>
-        const DAILY_LIMIT = 3;
-        const CREDIT_KEY = 'listingai_credits';
-        const LANG_MAP = {
-            en: 'English', de: 'German', fr: 'French', es: 'Spanish',
-            it: 'Italian', ja: 'Japanese', zh: 'Chinese (Simplified)'
-        };
+var DAILY_LIMIT = 3;
+var CREDIT_KEY = 'listingai_credits';
 
-        function getCreditInfo() {
-            const today = new Date().toDateString();
-            const stored = JSON.parse(localStorage.getItem(CREDIT_KEY) || '{}');
-            if (stored.date !== today) return { date: today, count: 0 };
-            return stored;
-        }
+var LANG_MAP = {
+    en: 'English', de: 'German', fr: 'French', es: 'Spanish',
+    it: 'Italian', ja: 'Japanese', zh: 'Chinese (Simplified)'
+};
 
-        function useCredit() {
-            const info = getCreditInfo();
-            info.count++;
-            localStorage.setItem(CREDIT_KEY, JSON.stringify(info));
-        }
+function getCreditInfo() {
+    var today = new Date().toDateString();
+    var stored = JSON.parse(localStorage.getItem(CREDIT_KEY) || '{}');
+    if (stored.date !== today) {
+        return { date: today, count: 0 };
+    }
+    return stored;
+}
 
-        function canGenerate() { return getCreditInfo().count < DAILY_LIMIT; }
+function useCredit() {
+    var info = getCreditInfo();
+    info.count++;
+    localStorage.setItem(CREDIT_KEY, JSON.stringify(info));
+}
 
-        function showPaywall() {
-            document.getElementById('creditCount').textContent = getCreditInfo().count + '/' + DAILY_LIMIT;
-            document.getElementById('paywallModal').classList.add('visible');
-        }
+function canGenerate() {
+    var info = getCreditInfo();
+    return info.count < DAILY_LIMIT;
+}
 
-        function hidePaywall() { document.getElementById('paywallModal').classList.remove('visible'); }
+function showPaywall() {
+    var info = getCreditInfo();
+    document.getElementById('creditCount').textContent = info.count + '/' + DAILY_LIMIT;
+    document.getElementById('paywallModal').classList.add('visible');
+}
 
-        function toggleGuide() {
-            var header = document.querySelector('.platform-guide-header');
-            var body = document.querySelector('.platform-guide-body');
-            header.classList.toggle('open');
-            body.classList.toggle('visible');
-        }
+function hidePaywall() {
+    document.getElementById('paywallModal').classList.remove('visible');
+}
 
-        function switchGuideTab(platform) {
-            document.querySelectorAll('.platform-guide-body .guide-tab').forEach(function(t) { t.classList.remove('active'); });
-            document.querySelectorAll('.platform-guide-body .guide-steps').forEach(function(s) { s.classList.remove('visible'); });
-            document.querySelector('.platform-guide-body .guide-tab[data-platform="' + platform + '"]').classList.add('active');
-            document.querySelector('.platform-guide-body .guide-steps[data-platform="' + platform + '"]').classList.add('visible');
-        }
-
-        function loadExample() {
-            document.getElementById('productName').value = 'Portable Blender';
-            document.getElementById('productCategory').value = 'Kitchen & Home Appliances';
-            document.getElementById('mainKeywords').value = 'portable blender, mini blender, personal blender';
-        }
-
-        async function generateKeywords() {
-            if (!canGenerate()) {
-                showPaywall();
-                return;
-            }
-
-            const productName = document.getElementById('productName').value.trim();
-            const productCategory = document.getElementById('productCategory').value.trim();
-            const mainKeywords = document.getElementById('mainKeywords').value.trim();
-            const lang = document.getElementById('langSelect').value;
-
-            if (!productName) {
-                alert('Please fill in Product Name');
-                return;
-            }
-
-            useCredit();
-
-            const loading = document.getElementById('loading');
-            const results = document.getElementById('results');
-            loading.classList.add('visible');
-            results.classList.remove('visible');
-
-            const systemPrompt = `You are an expert e-commerce SEO specialist. Your task is to generate a comprehensive keyword list for product listing optimization based on user product information.
+var SYSTEM_PROMPT = `You are an expert e-commerce SEO specialist. Your task is to generate a comprehensive keyword list for product listing optimization based on user product information.
 
 Search Intent Layering:
 - Informational: Keywords from users researching (e.g., "best wireless earbuds 2026", "how to choose running shoes")
@@ -314,73 +308,109 @@ Each keyword includes:
 - Estimated relevance (High/Medium/Low)
 - Suggested placement (title/bullet/description/backend)`;
 
-            const userPrompt = `Product: ${productName}
-Category: ${productCategory || 'General'}
-Main Keywords: ${mainKeywords || 'None specified'}
-Language: ${LANG_MAP[lang]}
+async function generateKeywords() {
+    if (!canGenerate()) { showPaywall(); return; }
 
-Generate a comprehensive keyword list following the output format specified.`;
+    var productName = document.getElementById('productName').value.trim();
+    var productCategory = document.getElementById('productCategory').value.trim();
+    var mainKeywords = document.getElementById('mainKeywords').value.trim();
+    var lang = document.getElementById('langSelect').value;
 
-            try {
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        system: systemPrompt,
-                        user: userPrompt,
-                        max_tokens: 2000
-                    })
-                });
+    if (!productName) { alert('Please enter a product name'); return; }
 
-                if (!response.ok) throw new Error('API request failed');
+    showLoading(true);
 
-                const data = await response.json();
-                displayResults(data.content);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to generate keywords. Please try again.');
-            } finally {
-                loading.classList.remove('visible');
-            }
+    var userPrompt = 'Product: ' + productName + '\nCategory: ' + (productCategory || 'General') + '\nMain Keywords: ' + (mainKeywords || 'None specified') + '\nLanguage: ' + LANG_MAP[lang] + '\n\nGenerate a comprehensive keyword list following the output format specified.';
+
+    try {
+        var response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                system: SYSTEM_PROMPT,
+                user: userPrompt,
+                max_tokens: 2000
+            })
+        });
+        if (!response.ok) throw new Error('API request failed');
+        var data = await response.json();
+        displayResults(data.content);
+        useCredit();
+    } catch (err) {
+        alert('Generation failed: ' + err.message);
+    }
+    showLoading(false);
+}
+
+function showLoading(show) {
+    var el = document.getElementById('loadingArea');
+    if (show) { el.classList.add('visible'); } else { el.classList.remove('visible'); }
+}
+
+function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function renderMarkdown(text) {
+    var html = escapeHtml(text);
+    html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/^---$/gm, '<hr>');
+    html = html.replace(/\n/g, '<br>');
+    html = html.replace(/<\/(h[34]|pre|hr)><br>/g, '</$1>');
+    return html;
+}
+
+function displayResults(content) {
+    var container = document.getElementById('resultsContainer');
+    var sections = content.split(/(?=##)/);
+    var html = '';
+    sections.forEach(function(section) {
+        if (section.trim()) {
+            var title = (section.match(/##\s*(.+?)(?=\n)/) || [])[1] || 'Generated Content';
+            var body = section.replace(/##\s*.+?\n/, '').trim();
+            html += '<div class="result-item"><h3 style="color:#94a3b8;font-size:14px;margin-bottom:8px;">' + escapeHtml(title) + '</h3><div class="md-content">' + renderMarkdown(body) + '</div><button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>';
         }
+    });
+    if (!html) {
+        html = '<div class="result-item"><div class="md-content">' + renderMarkdown(content) + '</div><button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>';
+    }
+    container.innerHTML = html;
+    document.getElementById('resultsArea').classList.add('visible');
+}
 
-        function displayResults(content) {
-            const results = document.getElementById('results');
-            const resultsContent = document.getElementById('resultsContent');
+function copyText(btn) {
+    var text = btn.previousElementSibling.innerText;
+    navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = '✅ Copied!';
+        setTimeout(function() { btn.textContent = '📋 Copy'; }, 2000);
+    });
+}
 
-            const sections = content.split(/(?=##)/);
-            let html = '';
+function loadExample() {
+    document.getElementById('productName').value = 'Portable Blender';
+    document.getElementById('productCategory').value = 'Kitchen & Home Appliances';
+    document.getElementById('mainKeywords').value = 'portable blender, mini blender, personal blender';
+}
 
-            sections.forEach(section => {
-                if (section.trim()) {
-                    const title = section.match(/##\s*(.+?)(?=\n)/)?.[1] || 'Generated Content';
-                    const body = section.replace(/##\s*.+?\n/, '').trim();
-                    html += `<div class="result-item">
-                        <h3 style="color:#94a3b8;font-size:14px;margin-bottom:8px;">${title}</h3>
-                        <div style="color:#e2e8f0;line-height:1.6;white-space:pre-wrap;">${body}</div>
-                        <button class="copy-btn" onclick="copyText(this)">📋 Copy</button>
-                    </div>`;
-                }
-            });
-
-            if (!html) {
-                html = `<div class="result-item">
-                    <div style="color:#e2e8f0;line-height:1.6;white-space:pre-wrap;">${content}</div>
-                    <button class="copy-btn" onclick="copyText(this)">📋 Copy</button>
-                </div>`;
-            }
-
-            resultsContent.innerHTML = html;
-            results.classList.add('visible');
-        }
-
-        function copyText(btn) {
-            const text = btn.parentElement.querySelector('div').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                btn.textContent = '✓ Copied!';
-                setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
-            });
-        }
+function toggleGuide() {
+    var header = document.querySelector('.platform-guide-header');
+    var body = document.querySelector('.platform-guide-body');
+    header.classList.toggle('open');
+    body.classList.toggle('visible');
+}
+function switchGuideTab(platform) {
+    document.querySelectorAll('.platform-guide-body .guide-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.platform-guide-body .guide-steps').forEach(function(s) { s.classList.remove('visible'); });
+    document.querySelector('.platform-guide-body .guide-tab[data-platform="' + platform + '"]').classList.add('active');
+    document.querySelector('.platform-guide-body .guide-steps[data-platform="' + platform + '"]').classList.add('visible');
+}
     </script>
 </body>
 </html>
