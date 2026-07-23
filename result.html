@@ -598,8 +598,49 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     throw new Error('AI returned invalid JSON. Please try again.');
                 }
 
+                // Unwrap: AI sometimes wraps data in an extra layer like {"listing": {"amazon":...}}
+                // or {"data": {"amazon":...}}. Extract the platform-level object.
+                if (listingData && !listingData[currentPlatform]) {
+                    const keys = Object.keys(listingData);
+                    diag('🔧 Unwrapping JSON wrapper (keys: ' + keys.join(',') + ')', '#FFD93D');
+                    // Try common wrapper keys first
+                    for (const wrapKey of ['listing', 'data', 'result', 'response', 'output', 'content', 'listings']) {
+                        if (listingData[wrapKey] && listingData[wrapKey][currentPlatform]) {
+                            listingData = listingData[wrapKey];
+                            diag('✅ Unwrapped via key "' + wrapKey + '"', '#A0E8AF');
+                            break;
+                        }
+                    }
+                    // If still not matched, try the first value that looks like a platform object
+                    if (!listingData[currentPlatform]) {
+                        for (const key of keys) {
+                            const val = listingData[key];
+                            if (val && typeof val === 'object' && !Array.isArray(val) && (val.amazon || val.shopify || val.etsy)) {
+                                listingData = val;
+                                diag('✅ Unwrapped via nested platform object (key: "' + key + '")', '#A0E8AF');
+                                break;
+                            }
+                        }
+                    }
+                    // Last resort: if the parsed object itself has amazon/shopify/etsy at top level but nested deeper
+                    if (!listingData[currentPlatform]) {
+                        diag('⚠️ Could not find platform data. Keys: ' + keys.join(','), '#FF6B6B');
+                    }
+                }
+
                 diag('🎉 Success! Rendering results...', '#A0E8AF');
                 renderResults(listingData);
+                
+                // Hide loading state and show results (even if render returned early, user should see something)
+                clearInterval(diagTimerInterval);
+                document.getElementById('loadingState').style.display = 'none';
+                if (listingData && listingData[currentPlatform]) {
+                    document.getElementById('resultsContainer').style.display = 'block';
+                } else {
+                    // Show error if data structure is wrong
+                    document.getElementById('errorMessage').textContent = 'AI returned unexpected data structure. Please try again.';
+                    document.getElementById('errorState').style.display = 'block';
+                }
             } catch (err) {
                 console.error('[ListingClick] Listing generation error:', err);
                 console.error('[ListingClick] Error name:', err.name);
