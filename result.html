@@ -280,7 +280,7 @@
             <div class="loading-spinner"></div>
             <div class="loading-text">Generating your listing...</div>
             <div class="loading-sub" id="loadingSub">Optimizing for Amazon, Shopify & Etsy</div>
-
+            <pre id="streamingPreview" style="display:none;text-align:left;max-width:500px;margin:16px auto 0;padding:16px;background:rgba(255,255,255,0.08);border-radius:12px;font-size:12px;line-height:1.6;color:rgba(255,255,255,0.7);max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;font-family:monospace;"></pre>
         </div>
 
         <!-- Error state -->
@@ -430,6 +430,11 @@
             document.getElementById('errorState').style.display = 'none';
             document.getElementById('loadingSub').textContent = 'Optimizing for Amazon, Shopify & Etsy';
 
+            // Show streaming preview
+            const preview = document.getElementById('streamingPreview');
+            preview.style.display = 'block';
+            preview.textContent = '';
+
             // Build the product context
             let productContext = '';
             if (inputData.url) {
@@ -460,15 +465,15 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 }`;
 
             try {
-                console.log('[ListingClick] Starting API call (non-streaming)...');
+                console.log('[ListingClick] Starting API call (streaming)...');
 
-                // Safety: force-hide loading after 180s even if something goes wrong
+                // Safety timeout: 120s
                 const safetyTimer = setTimeout(() => {
                     console.error('[ListingClick] Safety timeout triggered');
                     document.getElementById('loadingState').style.display = 'none';
-                    document.getElementById('errorMessage').textContent = 'Request took too long (180s). Please try again.';
+                    document.getElementById('errorMessage').textContent = 'Request took too long. Please try again.';
                     document.getElementById('errorState').style.display = 'block';
-                }, 180000);
+                }, 120000);
 
                 const res = await fetch(API_URL, {
                     method: 'POST',
@@ -480,7 +485,8 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                             { role: 'user', content: textPrompt }
                         ],
                         temperature: 0.3,
-                        max_tokens: 4000
+                        max_tokens: 4000,
+                        stream: true
                     })
                 });
 
@@ -491,16 +497,57 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     throw new Error(`API returned ${res.status}: ${errText}`);
                 }
 
-                const data = await res.json();
-                const content = data.choices?.[0]?.message?.content || '';
-                console.log('[ListingClick] Response received, chars:', content.length);
+                // Read the streaming response
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let fullContent = '';
+                let buffer = '';
 
-                if (!content) {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    // Parse SSE lines
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || ''; // keep incomplete line in buffer
+
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed || !trimmed.startsWith('data:')) continue;
+
+                        const data = trimmed.slice(5).trim();
+                        if (data === '[DONE]') continue;
+
+                        try {
+                            const parsed = JSON.parse(data);
+                            const delta = parsed.choices?.[0]?.delta?.content || '';
+                            if (delta) {
+                                fullContent += delta;
+                                // Update streaming preview (show last 500 chars)
+                                const previewText = fullContent.length > 500 ? '...' + fullContent.slice(-500) : fullContent;
+                                preview.textContent = previewText;
+                                preview.scrollTop = preview.scrollHeight;
+                            }
+                        } catch (e) {
+                            // Skip malformed JSON chunks
+                        }
+                    }
+                }
+
+                console.log('[ListingClick] Streaming complete, total chars:', fullContent.length);
+
+                if (!fullContent) {
                     throw new Error('Empty response from AI');
                 }
 
+                // Hide preview, show loading briefly while parsing
+                preview.style.display = 'none';
+                document.getElementById('loadingSub').textContent = 'Parsing results...';
+
                 try {
-                    let cleanContent = content.replace(/^\uFEFF/, '')
+                    let cleanContent = fullContent.replace(/^\uFEFF/, '')
                         .replace(/[\u200B\u200C\u200D\u2060]/g, '')
                         .trim();
 
@@ -516,7 +563,9 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                         if (jsonMatch) {
                             try {
                                 listingData = JSON.parse(jsonMatch[1].trim());
-                            } catch (e) { // Strategy 2 failed }
+                            } catch (e) {
+                            // Strategy 2 failed
+                        }
                         } else {
                         }
                     }
@@ -528,7 +577,9 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                         if (start !== -1 && lastEnd > start) {
                             try {
                                 listingData = JSON.parse(cleanContent.substring(start, lastEnd + 1));
-                            } catch (e) { // Strategy 3 failed }
+                            } catch (e) {
+                            // Strategy 3 failed
+                        }
                         } else {
                         }
                     }
@@ -545,6 +596,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                         }
                     }
                 } catch (fatalErr) {
+                    // fatal parse error
                 }
 
                 if (!listingData) {
@@ -552,17 +604,14 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 }
 
                 // Unwrap: AI sometimes wraps data in an extra layer like {"listing": {"amazon":...}}
-                // or {"data": {"amazon":...}}. Extract the platform-level object.
                 if (listingData && !listingData[currentPlatform]) {
                     const keys = Object.keys(listingData);
-                    // Try common wrapper keys first
                     for (const wrapKey of ['listing', 'data', 'result', 'response', 'output', 'content', 'listings']) {
                         if (listingData[wrapKey] && listingData[wrapKey][currentPlatform]) {
                             listingData = listingData[wrapKey];
                             break;
                         }
                     }
-                    // If still not matched, try the first value that looks like a platform object
                     if (!listingData[currentPlatform]) {
                         for (const key of keys) {
                             const val = listingData[key];
@@ -571,9 +620,6 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                                 break;
                             }
                         }
-                    }
-                    // Last resort: if the parsed object itself has amazon/shopify/etsy at top level but nested deeper
-                    if (!listingData[currentPlatform]) {
                     }
                 }
 
@@ -592,12 +638,11 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             } catch (err) {
                 console.error('[ListingClick] Listing generation error:', err);
                 
-                // Always hide loading state first
                 document.getElementById('loadingState').style.display = 'none';
                 
                 let errMsg = err.message || 'Unknown error';
                 if (err.name === 'AbortError') {
-                    errMsg = 'Request timed out (45s). The AI service might be busy. Please try again.';
+                    errMsg = 'Request timed out. The AI service might be busy. Please try again.';
                 } else if (err.message && err.message.includes('Failed to fetch')) {
                     errMsg = 'Network error. Please check your internet connection and try again.';
                 }
