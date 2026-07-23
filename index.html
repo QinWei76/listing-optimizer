@@ -404,5 +404,19 @@
         </div>
     </footer>
 
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            const input = document.querySelector('.input-box').value.trim();
+            if (!input) {
+                document.querySelector('.input-box').focus();
+                document.querySelector('.input-box').style.borderColor = '#DC2626';
+                setTimeout(() => { document.querySelector('.input-box').style.borderColor = '#E5E7EB'; }, 2000);
+                return;
+            }
+            localStorage.setItem('listing_input', input);
+            window.location.href = 'result.html';
+        });
+    </script>
+
 </body>
 </html>
