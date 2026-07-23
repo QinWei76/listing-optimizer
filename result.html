@@ -15,7 +15,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Nav - same as homepage */
+        /* Nav */
         .nav {
             position: fixed; top: 0; left: 0; right: 0;
             height: 80px;
@@ -48,7 +48,7 @@
         /* Input summary */
         .input-summary {
             background: #F7F8FA; border: 1px solid #E5E7EB; border-radius: 16px;
-            padding: 20px 24px; margin-bottom: 32px;
+            padding: 20px 24px; margin-bottom: 24px;
         }
         .input-summary-label {
             font-size: 12px; color: #9CA3AF; text-transform: uppercase;
@@ -60,6 +60,24 @@
             color: #0099CC; cursor: pointer; text-decoration: none;
         }
         .input-summary-edit:hover { text-decoration: underline; }
+
+        /* Score bar */
+        .score-bar {
+            display: flex; align-items: center; gap: 16px;
+            background: #F7F8FA; border: 1px solid #E5E7EB; border-radius: 12px;
+            padding: 14px 20px; margin-bottom: 24px; flex-wrap: wrap;
+        }
+        .score-label { font-size: 13px; color: #6B7280; font-weight: 500; }
+        .score-track {
+            flex: 1; min-width: 120px; height: 8px;
+            background: #E5E7EB; border-radius: 4px; overflow: hidden;
+        }
+        .score-fill {
+            height: 100%; border-radius: 4px; transition: width 0.6s ease;
+            background: linear-gradient(90deg, #DC2626, #F59E0B, #16A34A);
+        }
+        .score-value { font-size: 18px; font-weight: 700; color: #1A1D26; min-width: 40px; }
+        .score-details { font-size: 12px; color: #9CA3AF; width: 100%; margin-top: 4px; }
 
         /* Platform tabs */
         .platform-tabs {
@@ -85,22 +103,44 @@
         .result-section:hover { border-color: #D1D5DB; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .result-section-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
+        }
+        .result-section-left {
+            display: flex; align-items: center; gap: 10px;
         }
         .result-section-title {
             font-size: 13px; font-weight: 600; color: #6B7280;
             text-transform: uppercase; letter-spacing: 0.8px;
         }
+        .char-count {
+            font-size: 12px; padding: 3px 8px; border-radius: 6px;
+            font-weight: 500; transition: all 0.2s;
+        }
+        .char-count.ok { background: #F0FDF4; color: #16A34A; }
+        .char-count.warn { background: #FFFBEB; color: #D97706; }
+        .char-count.over { background: #FEF2F2; color: #DC2626; }
         .result-section-actions { display: flex; gap: 6px; }
-        .btn-copy {
+        .btn-action {
             display: inline-flex; align-items: center; gap: 4px;
             padding: 6px 12px; border: 1px solid #E5E7EB; border-radius: 6px;
             background: #FFF; color: #6B7280; font-size: 12px; cursor: pointer;
             transition: all 0.15s;
         }
-        .btn-copy:hover { border-color: #0099CC; color: #0099CC; }
-        .btn-copy.copied { border-color: #16A34A; color: #16A34A; }
-        .result-content { font-size: 15px; color: #1A1D26; line-height: 1.7; }
+        .btn-action:hover { border-color: #0099CC; color: #0099CC; }
+        .btn-action.copied { border-color: #16A34A; color: #16A34A; }
+        .btn-action.regenerating { opacity: 0.6; pointer-events: none; }
+        .btn-action svg { width: 14px; height: 14px; }
+
+        /* Editable content */
+        .result-content {
+            font-size: 15px; color: #1A1D26; line-height: 1.7;
+            outline: none; border-radius: 8px; padding: 4px; transition: all 0.2s;
+            min-height: 1.7em;
+        }
+        .result-content:focus {
+            background: #F7F8FA; box-shadow: inset 0 0 0 1px #0099CC;
+        }
+        .result-content[contenteditable="true"] { cursor: text; }
         .result-content.title-content { font-size: 20px; font-weight: 700; line-height: 1.4; }
         .result-content.bullets-content { padding-left: 0; list-style: none; }
         .result-content.bullets-content li {
@@ -109,17 +149,21 @@
         .result-content.bullets-content li::before {
             content: '•'; position: absolute; left: 4px; color: #0099CC; font-weight: 700;
         }
+        .result-content.bullets-content li[contenteditable="true"]:focus {
+            background: #EFF6FF; border-radius: 4px;
+        }
         .result-content.keywords-content { display: flex; flex-wrap: wrap; gap: 8px; }
         .keyword-tag {
             display: inline-block; padding: 6px 14px;
             background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 20px;
             font-size: 13px; color: #374151; transition: all 0.15s;
+            cursor: text; outline: none;
         }
-        .keyword-tag:hover { border-color: #0099CC; color: #0099CC; }
+        .keyword-tag:focus { background: #EFF6FF; border-color: #0099CC; }
 
         /* Copy all bar */
         .copy-all-bar {
-            display: flex; gap: 12px; justify-content: center;
+            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
             margin-top: 32px; padding-top: 24px; border-top: 1px solid #F0F1F3;
         }
         .btn-copy-all {
@@ -129,6 +173,13 @@
             font-weight: 600; cursor: pointer; transition: all 0.2s;
         }
         .btn-copy-all:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,153,204,0.25); }
+        .btn-download {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 32px; background: #FFF; color: #374151;
+            border: 1px solid #E5E7EB; border-radius: 12px; font-size: 15px;
+            font-weight: 500; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-download:hover { border-color: #0099CC; color: #0099CC; }
         .btn-regenerate {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 14px 32px; background: #FFF; color: #374151;
@@ -136,6 +187,14 @@
             font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none;
         }
         .btn-regenerate:hover { border-color: #0099CC; color: #0099CC; }
+
+        /* Edit hint */
+        .edit-hint {
+            text-align: center; font-size: 12px; color: #9CA3AF;
+            margin-bottom: 20px; display: flex; align-items: center;
+            justify-content: center; gap: 6px;
+        }
+        .edit-hint svg { width: 14px; height: 14px; }
 
         /* Loading state */
         .loading-state {
@@ -153,9 +212,7 @@
         .loading-sub { font-size: 14px; color: #9CA3AF; margin-top: 8px; }
 
         /* Error state */
-        .error-state {
-            text-align: center; padding: 60px 24px;
-        }
+        .error-state { text-align: center; padding: 60px 24px; }
         .error-icon { font-size: 48px; margin-bottom: 16px; }
         .error-title { font-size: 20px; font-weight: 700; color: #1A1D26; margin-bottom: 8px; }
         .error-desc { font-size: 15px; color: #6B7280; margin-bottom: 24px; }
@@ -176,6 +233,15 @@
         .footer-links a { font-size: 13px; color: #9CA3AF; text-decoration: none; }
         .footer-links a:hover { color: #0099CC; }
 
+        /* Toast notification */
+        .toast {
+            position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+            padding: 12px 24px; background: #1A1D26; color: #FFF; border-radius: 10px;
+            font-size: 14px; font-weight: 500; opacity: 0; transition: all 0.3s ease;
+            z-index: 200; pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
         /* Responsive */
         @media (max-width: 640px) {
             .nav { padding: 0 16px; height: 64px; }
@@ -183,6 +249,7 @@
             .main { padding: 80px 16px 40px; }
             .platform-tabs { flex-direction: column; }
             .copy-all-bar { flex-direction: column; }
+            .score-bar { flex-direction: column; align-items: flex-start; }
             .footer { padding: 24px 16px; flex-direction: column; text-align: center; }
         }
     </style>
@@ -202,6 +269,9 @@
             <a href="#" class="nav-login">Sign In</a>
         </div>
     </nav>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
     <!-- Main -->
     <div class="main">
@@ -229,11 +299,25 @@
                 <a href="index.html" class="input-summary-edit">← Edit & regenerate</a>
             </div>
 
+            <!-- Score bar -->
+            <div class="score-bar" id="scoreBar">
+                <span class="score-label">Listing Score</span>
+                <div class="score-track"><div class="score-fill" id="scoreFill" style="width:0%"></div></div>
+                <span class="score-value" id="scoreValue">--</span>
+                <div class="score-details" id="scoreDetails"></div>
+            </div>
+
             <!-- Platform tabs -->
             <div class="platform-tabs">
                 <button class="platform-tab active" data-platform="amazon" onclick="switchPlatform('amazon')">Amazon</button>
                 <button class="platform-tab" data-platform="shopify" onclick="switchPlatform('shopify')">Shopify</button>
                 <button class="platform-tab" data-platform="etsy" onclick="switchPlatform('etsy')">Etsy</button>
+            </div>
+
+            <!-- Edit hint -->
+            <div class="edit-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Click any text to edit · Changes are kept until you leave
             </div>
 
             <!-- Result sections -->
@@ -244,6 +328,10 @@
                 <button class="btn-copy-all" onclick="copyAll()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     Copy All
+                </button>
+                <button class="btn-download" onclick="downloadTxt()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download .txt
                 </button>
                 <a href="index.html" class="btn-regenerate">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
@@ -267,6 +355,13 @@
         const API_URL = 'https://api.deepseek.com/chat/completions';
         const API_KEY = 'sk-23d562237724474fbf489b29843043a6';
         const MODEL = 'deepseek-chat';
+
+        // Platform-specific limits for character counting
+        const PLATFORM_LIMITS = {
+            amazon:  { title: 200, bullets: 500, description: 2000, keywords: 250 },
+            shopify: { title: 70,  bullets: 300, description: 2000, keywords: 200 },
+            etsy:    { title: 140, bullets: 300, description: 2000, keywords: 200 }
+        };
 
         let currentPlatform = 'amazon';
         let listingData = null;
@@ -328,16 +423,15 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 const data = await res.json();
                 let content = data.choices?.[0]?.message?.content || '';
 
-                // Extract JSON from response (handle markdown code blocks)
                 const jsonMatch = content.match(/\{[\s\S]*\}/);
                 if (!jsonMatch) throw new Error('Invalid response format');
 
                 listingData = JSON.parse(jsonMatch[0]);
 
-                // Show results
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('resultsContainer').style.display = 'block';
                 renderResults();
+                updateScore();
             } catch (e) {
                 console.error('Generation error:', e);
                 document.getElementById('loadingState').style.display = 'none';
@@ -345,57 +439,229 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             }
         }
 
+        // Regenerate a single section
+        async function regenerateSection(sectionType) {
+            const input = getInput();
+            if (!input || !listingData) return;
+
+            const btn = document.querySelector(`[data-regen="${sectionType}"]`);
+            if (btn) {
+                btn.classList.add('regenerating');
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 0.8s linear infinite"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> ...';
+            }
+
+            const prompts = {
+                title: `Generate a single optimized product title for ${currentPlatform}. Product: ${input}. Amazon: keyword-rich 200 chars max. Shopify: clean branded 70 chars max. Etsy: SEO-optimized 140 chars max. Return ONLY a JSON object: {"title": "..."}`,
+                bullets: `Generate exactly 5 key feature bullet points for ${currentPlatform}. Product: ${input}. Return ONLY a JSON object: {"bullet_points": ["...", "...", "...", "...", "..."]}`,
+                description: `Generate a compelling product description (200-300 words) for ${currentPlatform}. Product: ${input}. Return ONLY a JSON object: {"description": "..."}`,
+                keywords: `Generate exactly 10 relevant search keywords/tags for ${currentPlatform}. Product: ${input}. Return ONLY a JSON object: {"keywords": ["...", ...]}`
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [{ role: 'user', content: prompts[sectionType] }],
+                        temperature: 0.7,
+                        max_tokens: 1500
+                    })
+                });
+
+                const data = await res.json();
+                let content = data.choices?.[0]?.message?.content || '';
+                const jsonMatch = content.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error('Invalid response');
+
+                const parsed = JSON.parse(jsonMatch[0]);
+                listingData[currentPlatform][sectionType] = parsed[sectionType];
+                renderResults();
+                updateScore();
+                showToast('Section regenerated!');
+            } catch (e) {
+                console.error('Section regen error:', e);
+                showToast('Failed to regenerate. Please try again.');
+            }
+
+            if (btn) {
+                btn.classList.remove('regenerating');
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Retry';
+            }
+        }
+
         // Render results for current platform
         function renderResults() {
             if (!listingData || !listingData[currentPlatform]) return;
             const data = listingData[currentPlatform];
+            const limits = PLATFORM_LIMITS[currentPlatform];
             const container = document.getElementById('resultSections');
+
+            // Character counts
+            const titleLen = data.title.length;
+            const bulletsLen = data.bullet_points.join('\n').length;
+            const descLen = data.description.length;
+            const kwLen = data.keywords.join(', ').length;
 
             container.innerHTML = `
                 <div class="result-section">
                     <div class="result-section-header">
-                        <span class="result-section-title">Title</span>
+                        <div class="result-section-left">
+                            <span class="result-section-title">Title</span>
+                            <span class="char-count ${getCountClass(titleLen, limits.title)}">${titleLen}/${limits.title}</span>
+                        </div>
                         <div class="result-section-actions">
-                            <button class="btn-copy" onclick="copySection('title', this)">Copy</button>
+                            <button class="btn-action" data-regen="title" onclick="regenerateSection('title')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                Retry
+                            </button>
+                            <button class="btn-action" onclick="copySection('title', this)">Copy</button>
                         </div>
                     </div>
-                    <div class="result-content title-content" id="result-title">${escapeHtml(data.title)}</div>
+                    <div class="result-content title-content" contenteditable="true" data-field="title" oninput="onContentEdit(this)">${escapeHtml(data.title)}</div>
                 </div>
 
                 <div class="result-section">
                     <div class="result-section-header">
-                        <span class="result-section-title">Key Features</span>
+                        <div class="result-section-left">
+                            <span class="result-section-title">Key Features</span>
+                            <span class="char-count ${getCountClass(bulletsLen, limits.bullets)}">${bulletsLen} chars</span>
+                        </div>
                         <div class="result-section-actions">
-                            <button class="btn-copy" onclick="copySection('bullets', this)">Copy</button>
+                            <button class="btn-action" data-regen="bullets" onclick="regenerateSection('bullet_points')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                Retry
+                            </button>
+                            <button class="btn-action" onclick="copySection('bullets', this)">Copy</button>
                         </div>
                     </div>
-                    <ul class="result-content bullets-content" id="result-bullets">
-                        ${data.bullet_points.map(bp => `<li>${escapeHtml(bp)}</li>`).join('')}
+                    <ul class="result-content bullets-content">
+                        ${data.bullet_points.map((bp, i) => `<li contenteditable="true" data-field="bullet" data-index="${i}" oninput="onBulletEdit(this, ${i})">${escapeHtml(bp)}</li>`).join('')}
                     </ul>
                 </div>
 
                 <div class="result-section">
                     <div class="result-section-header">
-                        <span class="result-section-title">Description</span>
+                        <div class="result-section-left">
+                            <span class="result-section-title">Description</span>
+                            <span class="char-count ${getCountClass(descLen, limits.description)}">${descLen} chars</span>
+                        </div>
                         <div class="result-section-actions">
-                            <button class="btn-copy" onclick="copySection('description', this)">Copy</button>
+                            <button class="btn-action" data-regen="description" onclick="regenerateSection('description')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                Retry
+                            </button>
+                            <button class="btn-action" onclick="copySection('description', this)">Copy</button>
                         </div>
                     </div>
-                    <div class="result-content" id="result-description">${escapeHtml(data.description)}</div>
+                    <div class="result-content" contenteditable="true" data-field="description" oninput="onContentEdit(this)">${escapeHtml(data.description)}</div>
                 </div>
 
                 <div class="result-section">
                     <div class="result-section-header">
-                        <span class="result-section-title">Keywords</span>
+                        <div class="result-section-left">
+                            <span class="result-section-title">Keywords</span>
+                            <span class="char-count ${getCountClass(kwLen, limits.keywords)}">${kwLen} chars</span>
+                        </div>
                         <div class="result-section-actions">
-                            <button class="btn-copy" onclick="copySection('keywords', this)">Copy</button>
+                            <button class="btn-action" data-regen="keywords" onclick="regenerateSection('keywords')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                Retry
+                            </button>
+                            <button class="btn-action" onclick="copySection('keywords', this)">Copy</button>
                         </div>
                     </div>
-                    <div class="result-content keywords-content" id="result-keywords">
-                        ${data.keywords.map(kw => `<span class="keyword-tag">${escapeHtml(kw)}</span>`).join('')}
+                    <div class="result-content keywords-content">
+                        ${data.keywords.map((kw, i) => `<span class="keyword-tag" contenteditable="true" data-field="keyword" data-index="${i}" oninput="onKeywordEdit(this, ${i})">${escapeHtml(kw)}</span>`).join('')}
                     </div>
                 </div>
             `;
+        }
+
+        // Content edit handlers - sync to data
+        function onContentEdit(el) {
+            const field = el.dataset.field;
+            listingData[currentPlatform][field] = el.textContent;
+            // Update char count
+            updateCharCounts();
+            updateScore();
+        }
+
+        function onBulletEdit(el, index) {
+            listingData[currentPlatform].bullet_points[index] = el.textContent;
+            updateCharCounts();
+            updateScore();
+        }
+
+        function onKeywordEdit(el, index) {
+            listingData[currentPlatform].keywords[index] = el.textContent;
+            updateCharCounts();
+            updateScore();
+        }
+
+        // Update character count badges
+        function updateCharCounts() {
+            const data = listingData[currentPlatform];
+            const limits = PLATFORM_LIMITS[currentPlatform];
+            const counts = [
+                { el: 0, val: data.title.length, limit: limits.title },
+                { el: 1, val: data.bullet_points.join('\n').length, limit: limits.bullets },
+                { el: 2, val: data.description.length, limit: limits.description },
+                { el: 3, val: data.keywords.join(', ').length, limit: limits.keywords }
+            ];
+            const badges = document.querySelectorAll('.char-count');
+            counts.forEach((c, i) => {
+                if (badges[i]) {
+                    const label = i === 0 ? `${c.val}/${c.limit}` : `${c.val} chars`;
+                    badges[i].textContent = label;
+                    badges[i].className = 'char-count ' + getCountClass(c.val, c.limit);
+                }
+            });
+        }
+
+        function getCountClass(val, limit) {
+            const ratio = val / limit;
+            if (ratio > 1) return 'over';
+            if (ratio > 0.85) return 'warn';
+            return 'ok';
+        }
+
+        // Calculate and display listing score
+        function updateScore() {
+            if (!listingData) return;
+            const data = listingData[currentPlatform];
+            const limits = PLATFORM_LIMITS[currentPlatform];
+
+            let score = 0;
+            const details = [];
+
+            // Title score (30 pts)
+            const titleRatio = data.title.length / limits.title;
+            const titleScore = Math.min(30, Math.round(titleRatio > 0.3 && titleRatio <= 1 ? 30 : titleRatio > 1 ? 20 : titleRatio * 30));
+            score += titleScore;
+            details.push(`Title ${titleScore}/30`);
+
+            // Bullets score (25 pts)
+            const bulletsCount = data.bullet_points.length;
+            const bulletsScore = Math.min(25, Math.round((bulletsCount / 5) * 25));
+            score += bulletsScore;
+            details.push(`Features ${bulletsScore}/25`);
+
+            // Description score (25 pts)
+            const descWords = data.description.split(/\s+/).length;
+            const descScore = descWords >= 150 && descWords <= 350 ? 25 : descWords >= 100 ? 20 : descWords >= 50 ? 15 : 10;
+            score += descScore;
+            details.push(`Description ${descScore}/25`);
+
+            // Keywords score (20 pts)
+            const kwCount = data.keywords.length;
+            const kwScore = Math.min(20, Math.round((kwCount / 10) * 20));
+            score += kwScore;
+            details.push(`Keywords ${kwScore}/20`);
+
+            document.getElementById('scoreFill').style.width = score + '%';
+            document.getElementById('scoreValue').textContent = score;
+            document.getElementById('scoreDetails').textContent = details.join(' · ');
         }
 
         // Switch platform tab
@@ -404,7 +670,10 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             document.querySelectorAll('.platform-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.platform === platform);
             });
-            if (listingData) renderResults();
+            if (listingData) {
+                renderResults();
+                updateScore();
+            }
         }
 
         // Copy section
@@ -419,6 +688,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             navigator.clipboard.writeText(text).then(() => {
                 btn.textContent = 'Copied!';
                 btn.classList.add('copied');
+                showToast('Copied to clipboard!');
                 setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
             });
         }
@@ -427,13 +697,55 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
         function copyAll() {
             const data = listingData[currentPlatform];
             const text = `Title: ${data.title}\n\nKey Features:\n${data.bullet_points.map((bp, i) => `${i + 1}. ${bp}`).join('\n')}\n\nDescription:\n${data.description}\n\nKeywords: ${data.keywords.join(', ')}`;
-            const btn = document.querySelector('.btn-copy-all');
             navigator.clipboard.writeText(text).then(() => {
+                showToast('All content copied!');
+                const btn = document.querySelector('.btn-copy-all');
                 btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
                 setTimeout(() => {
                     btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy All';
                 }, 2000);
             });
+        }
+
+        // Download as TXT
+        function downloadTxt() {
+            const data = listingData[currentPlatform];
+            const text = `ListingClick - ${currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1)} Listing
+${'='.repeat(50)}
+
+TITLE:
+${data.title}
+
+KEY FEATURES:
+${data.bullet_points.map((bp, i) => `${i + 1}. ${bp}`).join('\n')}
+
+DESCRIPTION:
+${data.description}
+
+KEYWORDS:
+${data.keywords.join(', ')}
+
+${'='.repeat(50)}
+Generated by ListingClick · ${new Date().toLocaleDateString()}
+`;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `listing-${currentPlatform}-${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Downloaded!');
+        }
+
+        // Toast notification
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
         // Escape HTML
@@ -443,7 +755,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             return div.innerHTML;
         }
 
-        // Regenerate
+        // Regenerate all
         function regenerate() {
             const input = getInput();
             if (input) generateListing(input);
