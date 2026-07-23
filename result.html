@@ -280,12 +280,7 @@
             <div class="loading-spinner"></div>
             <div class="loading-text">Generating your listing...</div>
             <div class="loading-sub">Optimizing for Amazon, Shopify & Etsy</div>
-            <!-- Real-time diagnostic panel -->
-            <div id="diagPanel" style="margin-top:24px;padding:16px 20px;background:#1A1D26;border-radius:12px;font-family:monospace;font-size:13px;color:#A0E8AF;text-align:left;max-width:480px;width:100%;">
-                <div style="color:#fff;margin-bottom:8px;font-size:14px;">⚙️ Live Diagnostics</div>
-                <div id="diagSteps"></div>
-                <div id="diagTimer" style="color:#6B7280;margin-top:8px;">Elapsed: 0s</div>
-            </div>
+
         </div>
 
         <!-- Error state -->
@@ -422,31 +417,8 @@
             await generateListing(inputData);
         }
 
-        // Diagnostic helper
-        const diagSteps = [];
-        function diag(msg, color) {
-            color = color || '#A0E8AF';
-            diagSteps.push({ msg, color, time: Math.round((Date.now() - diagStart) / 1000) + 's' });
-            const el = document.getElementById('diagSteps');
-            if (el) {
-                el.innerHTML = diagSteps.map(s => `<div style="color:${s.color};">[${s.time}] ${s.msg}</div>`).join('');
-            }
-        }
-        let diagStart = Date.now();
-        let diagTimerInterval = setInterval(() => {
-            const el = document.getElementById('diagTimer');
-            if (el) el.textContent = 'Elapsed: ' + Math.round((Date.now() - diagStart) / 1000) + 's';
-        }, 1000);
-
         // Call AI to generate listing (text only - image analysis happens on index.html)
         async function generateListing(inputData) {
-            diagStart = Date.now();
-            diagSteps.length = 0;
-            clearInterval(diagTimerInterval);
-            diagTimerInterval = setInterval(() => {
-                const el = document.getElementById('diagTimer');
-                if (el) el.textContent = 'Elapsed: ' + Math.round((Date.now() - diagStart) / 1000) + 's';
-            }, 1000);
 
             // Normalize: if string passed, convert to object
             if (typeof inputData === 'string') {
@@ -456,7 +428,6 @@
             document.getElementById('loadingState').style.display = 'flex';
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('errorState').style.display = 'none';
-            diag('✅ Data loaded from localStorage', '#A0E8AF');
 
             // Build the product context
             let productContext = '';
@@ -493,10 +464,9 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 console.log('[ListingClick] MODEL:', MODEL);
                 console.log('[ListingClick] Input text length:', productContext.length);
                 console.log('[ListingClick] Timeout set to 45s');
-                diag('📡 Sending API request...', '#FFD93D');
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => { console.log("[ListingClick] Timeout reached, aborting..."); diag('❌ Timeout after 45s', '#FF6B6B'); controller.abort(); }, 45000);
+                const timeoutId = setTimeout(() => { console.log("[ListingClick] Timeout reached, aborting..."); controller.abort(); }, 45000);
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
@@ -514,39 +484,31 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 clearTimeout(timeoutId);
                 console.log("[ListingClick] Response received, timeout cleared");
                 console.log('[ListingClick] API response status:', res.status);
-                diag('✅ Response received (status ' + res.status + ')', '#A0E8AF');
 
                 if (!res.ok) {
-                    diag('❌ API error: ' + res.status + ' ' + res.statusText, '#FF6B6B');
                     throw new Error(`API returned ${res.status}: ${res.statusText}`);
                 }
 
                 const data = await res.json();
                 if (data.error) {
-                    diag('❌ API error: ' + (data.error.message || data.error.code), '#FF6B6B');
                     throw new Error(data.error.message || data.error.code || 'API error');
                 }
                 const content = data.choices?.[0]?.message?.content || '';
 
                 if (!content) {
-                    diag('❌ Empty response', '#FF6B6B');
                     throw new Error('Empty response from AI');
                 }
 
-                diag('🔍 Parsing JSON... (' + content.length + ' chars)', '#FFD93D');
 
                 try {
                     let cleanContent = content.replace(/^\uFEFF/, '')
                         .replace(/[\u200B\u200C\u200D\u2060]/g, '')
                         .trim();
-                    diag('📝 Content cleaned (' + cleanContent.length + ' chars)', '#FFD93D');
 
                     // Strategy 1: Direct parse
                     try {
                         listingData = JSON.parse(cleanContent);
-                        diag('✅ Strategy 1: direct parse', '#A0E8AF');
                     } catch (e) {
-                        diag('⚠️ Strategy 1 failed: ' + e.message, '#FFD93D');
                     }
 
                     // Strategy 2: Extract from markdown code block
@@ -555,10 +517,8 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                         if (jsonMatch) {
                             try {
                                 listingData = JSON.parse(jsonMatch[1].trim());
-                                diag('✅ Strategy 2: markdown block', '#A0E8AF');
-                            } catch (e) { diag('⚠️ Strategy 2 failed: ' + e.message, '#FFD93D'); }
+                            } catch (e) { // Strategy 2 failed }
                         } else {
-                            diag('⚠️ Strategy 2: no markdown block', '#FFD93D');
                         }
                     }
 
@@ -569,10 +529,8 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                         if (start !== -1 && lastEnd > start) {
                             try {
                                 listingData = JSON.parse(cleanContent.substring(start, lastEnd + 1));
-                                diag('✅ Strategy 3: brace match', '#A0E8AF');
-                            } catch (e) { diag('⚠️ Strategy 3 failed: ' + e.message, '#FFD93D'); }
+                            } catch (e) { // Strategy 3 failed }
                         } else {
-                            diag('⚠️ Strategy 3: no braces found', '#FFD93D');
                         }
                     }
 
@@ -584,18 +542,13 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                             .replace(/'/g, '"');
                         try {
                             listingData = JSON.parse(fixedContent);
-                            diag('✅ Strategy 4: fixed JSON', '#A0E8AF');
                         } catch (e) {
-                            diag('⚠️ Strategy 4 failed: ' + e.message, '#FFD93D');
-                            diag('📋 Content preview: ' + cleanContent.substring(0, 300), '#FF6B6B');
                         }
                     }
                 } catch (fatalErr) {
-                    diag('💥 Fatal parse error: ' + fatalErr.message, '#FF6B6B');
                 }
 
                 if (!listingData) {
-                    diag('❌ All 4 strategies failed', '#FF6B6B');
                     throw new Error('AI returned invalid JSON. Please try again.');
                 }
 
@@ -603,12 +556,10 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 // or {"data": {"amazon":...}}. Extract the platform-level object.
                 if (listingData && !listingData[currentPlatform]) {
                     const keys = Object.keys(listingData);
-                    diag('🔧 Unwrapping JSON wrapper (keys: ' + keys.join(',') + ')', '#FFD93D');
                     // Try common wrapper keys first
                     for (const wrapKey of ['listing', 'data', 'result', 'response', 'output', 'content', 'listings']) {
                         if (listingData[wrapKey] && listingData[wrapKey][currentPlatform]) {
                             listingData = listingData[wrapKey];
-                            diag('✅ Unwrapped via key "' + wrapKey + '"', '#A0E8AF');
                             break;
                         }
                     }
@@ -618,52 +569,29 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                             const val = listingData[key];
                             if (val && typeof val === 'object' && !Array.isArray(val) && (val.amazon || val.shopify || val.etsy)) {
                                 listingData = val;
-                                diag('✅ Unwrapped via nested platform object (key: "' + key + '")', '#A0E8AF');
                                 break;
                             }
                         }
                     }
                     // Last resort: if the parsed object itself has amazon/shopify/etsy at top level but nested deeper
                     if (!listingData[currentPlatform]) {
-                        diag('⚠️ Could not find platform data. Keys: ' + keys.join(','), '#FF6B6B');
                     }
                 }
 
-                diag('🎉 Success! Rendering results...', '#A0E8AF');
                 renderResults();
                 updateScore();
                 
                 // Hide loading state and show results
-                clearInterval(diagTimerInterval);
                 document.getElementById('loadingState').style.display = 'none';
-                
-                // Debug: show raw JSON and parsed structure
-                let debugInfo = document.getElementById('debugInfo');
-                if (!debugInfo) {
-                    debugInfo = document.createElement('div');
-                    debugInfo.id = 'debugInfo';
-                    debugInfo.style.cssText = 'background:#1a1a2e;color:#0f0;padding:15px;font-size:12px;font-family:monospace;white-space:pre-wrap;max-height:400px;overflow:auto;border-radius:8px;margin:10px;word-break:break-all;';
-                    document.getElementById('resultsContainer').parentNode.insertBefore(debugInfo, document.getElementById('resultsContainer'));
-                }
-                debugInfo.innerHTML = '<b>🔍 DEBUG - Raw JSON (first 500 chars):</b>\n' + 
-                    (content || '').substring(0, 500) + '\n\n<b>🔍 Parsed keys:</b> ' + 
-                    (listingData ? JSON.stringify(Object.keys(listingData)) : 'null') +
-                    '\n<b>🔍 Platform "' + currentPlatform + '" data keys:</b> ' + 
-                    (listingData && listingData[currentPlatform] ? JSON.stringify(Object.keys(listingData[currentPlatform])) : 'NOT FOUND') +
-                    '\n<b>🔍 Full parsed data:</b>\n' + JSON.stringify(listingData, null, 2).substring(0, 1000);
-                debugInfo.style.display = 'block';
                 
                 if (listingData && listingData[currentPlatform]) {
                     document.getElementById('resultsContainer').style.display = 'block';
                 } else {
-                    document.getElementById('errorMessage').textContent = 'AI returned unexpected data structure. Check debug panel above.';
+                    document.getElementById('errorMessage').textContent = 'AI returned unexpected data format. Please try again.';
                     document.getElementById('errorState').style.display = 'block';
                 }
             } catch (err) {
                 console.error('[ListingClick] Listing generation error:', err);
-                console.error('[ListingClick] Error name:', err.name);
-                console.error('[ListingClick] Error message:', err.message);
-                clearInterval(diagTimerInterval);
                 
                 // Always hide loading state first
                 document.getElementById('loadingState').style.display = 'none';
@@ -675,7 +603,6 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     errMsg = 'Network error. Please check your internet connection and try again.';
                 }
                 
-                diag('❌ Error: ' + errMsg, '#FF6B6B');
                 document.getElementById('errorMessage').textContent = errMsg;
                 document.getElementById('errorState').style.display = 'block';
             }
