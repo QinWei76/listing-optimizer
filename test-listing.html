@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Listing Generation Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto; font-size: 12px; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Listing Generation Test</h1>
+    <p>This test simulates the full listing generation flow with hardcoded test data.</p>
+    
+    <button onclick="runTest()">Run Test</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(msg, type = 'info') {
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = msg;
+            output.appendChild(p);
+        }
+        
+        async function runTest() {
+            output.innerHTML = '';
+            log('Starting listing generation test...', 'info');
+            
+            const API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+            const API_KEY = 'sk-olnalwkcyhvklkblyyjriwzklszndixiwwhggrenynvaqpqk';
+            const MODEL = 'Qwen/Qwen2.5-14B-Instruct';
+            
+            const testProduct = 'Wireless Bluetooth Earbuds with charging case, 30hr battery life, noise cancellation, IPX5 waterproof.';
+            
+            const textPrompt = `You are an expert e-commerce listing optimizer. Generate optimized product listings for three platforms: Amazon, Shopify, and Etsy.
+
+Product information: ${testProduct}
+
+For each platform, generate:
+- title: An optimized product title
+- item_highlights: (Amazon ONLY) Up to 125 chars
+- bullet_points: 5 key feature bullet points
+- description: A compelling product description (200-300 words)
+- keywords: 10 relevant search keywords/tags
+
+IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
+{
+  "amazon": {"title": "", "item_highlights": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]},
+  "shopify": {"title": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]},
+  "etsy": {"title": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]}
+}`;
+            
+            try {
+                log('Sending request to SiliconFlow API...', 'info');
+                log(`Model: ${MODEL}`, 'info');
+                log(`Product: ${testProduct}`, 'info');
+                
+                const startTime = Date.now();
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => {
+                    log('Timeout reached (45s), aborting...', 'error');
+                    controller.abort();
+                }, 45000);
+                
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [
+                            { role: 'system', content: 'You are a JSON-only API. You MUST return ONLY valid JSON. No markdown code blocks, no explanations, no extra text.' },
+                            { role: 'user', content: textPrompt }
+                        ],
+                        temperature: 0.3,
+                        max_tokens: 3000
+                    }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                log(`Response received in ${elapsed}s`, 'success');
+                log(`Status: ${res.status} ${res.statusText}`, res.ok ? 'success' : 'error');
+                
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    log(`Error response: ${errorText}`, 'error');
+                    return;
+                }
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    log(`API error: ${data.error.message || JSON.stringify(data.error)}`, 'error');
+                    return;
+                }
+                
+                const content = data.choices?.[0]?.message?.content || '';
+                
+                if (!content) {
+                    log('Empty response from AI', 'error');
+                    log(`Full response: ${JSON.stringify(data, null, 2)}`, 'info');
+                    return;
+                }
+                
+                log(`Received content (${content.length} chars)`, 'success');
+                
+                // Try to parse JSON
+                let listingData;
+                try {
+                    listingData = JSON.parse(content);
+                    log('✓ JSON parsed successfully (Strategy 1)', 'success');
+                } catch (e) {
+                    log(`Strategy 1 failed: ${e.message}`, 'info');
+                    
+                    // Strategy 2: markdown code block
+                    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+                    if (jsonMatch) {
+                        try {
+                            listingData = JSON.parse(jsonMatch[1].trim());
+                            log('✓ JSON parsed successfully (Strategy 2)', 'success');
+                        } catch (e2) {
+                            log(`Strategy 2 failed: ${e2.message}`, 'info');
+                        }
+                    }
+                    
+                    // Strategy 3: find balanced braces
+                    if (!listingData) {
+                        const start = content.indexOf('{');
+                        const lastEnd = content.lastIndexOf('}');
+                        if (start !== -1 && lastEnd > start) {
+                            try {
+                                listingData = JSON.parse(content.substring(start, lastEnd + 1));
+                                log('✓ JSON parsed successfully (Strategy 3)', 'success');
+                            } catch (e3) {
+                                log(`Strategy 3 failed: ${e3.message}`, 'info');
+                            }
+                        }
+                    }
+                }
+                
+                if (!listingData) {
+                    log('✗ All JSON parsing strategies failed', 'error');
+                    log(`Raw content (first 1000 chars):`, 'info');
+                    const pre = document.createElement('pre');
+                    pre.textContent = content.substring(0, 1000);
+                    output.appendChild(pre);
+                    return;
+                }
+                
+                log('✓ Listing data parsed successfully!', 'success');
+                log(`Platforms: ${Object.keys(listingData).join(', ')}`, 'success');
+                
+                if (listingData.amazon) {
+                    log(`Amazon title: ${listingData.amazon.title}`, 'success');
+                    log(`Amazon bullet points: ${listingData.amazon.bullet_points?.length || 0}`, 'success');
+                }
+                
+                log('Test completed successfully!', 'success');
+                
+            } catch (err) {
+                log(`Error: ${err.message}`, 'error');
+                log(`Error name: ${err.name}`, 'error');
+                console.error('Test error:', err);
+            }
+        }
+        
+        // Auto-run on load
+        setTimeout(runTest, 1000);
+    </script>
+</body>
+</html>
