@@ -280,6 +280,12 @@
             <div class="loading-spinner"></div>
             <div class="loading-text">Generating your listing...</div>
             <div class="loading-sub">Optimizing for Amazon, Shopify & Etsy</div>
+            <!-- Real-time diagnostic panel -->
+            <div id="diagPanel" style="margin-top:24px;padding:16px 20px;background:#1A1D26;border-radius:12px;font-family:monospace;font-size:13px;color:#A0E8AF;text-align:left;max-width:480px;width:100%;">
+                <div style="color:#fff;margin-bottom:8px;font-size:14px;">⚙️ Live Diagnostics</div>
+                <div id="diagSteps"></div>
+                <div id="diagTimer" style="color:#6B7280;margin-top:8px;">Elapsed: 0s</div>
+            </div>
         </div>
 
         <!-- Error state -->
@@ -416,8 +422,32 @@
             await generateListing(inputData);
         }
 
+        // Diagnostic helper
+        const diagSteps = [];
+        function diag(msg, color) {
+            color = color || '#A0E8AF';
+            diagSteps.push({ msg, color, time: Math.round((Date.now() - diagStart) / 1000) + 's' });
+            const el = document.getElementById('diagSteps');
+            if (el) {
+                el.innerHTML = diagSteps.map(s => `<div style="color:${s.color};">[${s.time}] ${s.msg}</div>`).join('');
+            }
+        }
+        let diagStart = Date.now();
+        let diagTimerInterval = setInterval(() => {
+            const el = document.getElementById('diagTimer');
+            if (el) el.textContent = 'Elapsed: ' + Math.round((Date.now() - diagStart) / 1000) + 's';
+        }, 1000);
+
         // Call AI to generate listing (text only - image analysis happens on index.html)
         async function generateListing(inputData) {
+            diagStart = Date.now();
+            diagSteps.length = 0;
+            clearInterval(diagTimerInterval);
+            diagTimerInterval = setInterval(() => {
+                const el = document.getElementById('diagTimer');
+                if (el) el.textContent = 'Elapsed: ' + Math.round((Date.now() - diagStart) / 1000) + 's';
+            }, 1000);
+
             // Normalize: if string passed, convert to object
             if (typeof inputData === 'string') {
                 inputData = { text: inputData, url: null, isProductUrl: false };
@@ -426,6 +456,7 @@
             document.getElementById('loadingState').style.display = 'flex';
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('errorState').style.display = 'none';
+            diag('✅ Data loaded from localStorage', '#A0E8AF');
 
             // Build the product context
             let productContext = '';
@@ -462,9 +493,10 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 console.log('[ListingClick] MODEL:', MODEL);
                 console.log('[ListingClick] Input text length:', productContext.length);
                 console.log('[ListingClick] Timeout set to 45s');
+                diag('📡 Sending API request...', '#FFD93D');
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => { console.log("[ListingClick] Timeout reached, aborting..."); controller.abort(); }, 45000);
+                const timeoutId = setTimeout(() => { console.log("[ListingClick] Timeout reached, aborting..."); diag('❌ Timeout after 45s', '#FF6B6B'); controller.abort(); }, 45000);
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
@@ -482,20 +514,26 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 clearTimeout(timeoutId);
                 console.log("[ListingClick] Response received, timeout cleared");
                 console.log('[ListingClick] API response status:', res.status);
+                diag('✅ Response received (status ' + res.status + ')', '#A0E8AF');
 
                 if (!res.ok) {
+                    diag('❌ API error: ' + res.status + ' ' + res.statusText, '#FF6B6B');
                     throw new Error(`API returned ${res.status}: ${res.statusText}`);
                 }
 
                 const data = await res.json();
                 if (data.error) {
+                    diag('❌ API error: ' + (data.error.message || data.error.code), '#FF6B6B');
                     throw new Error(data.error.message || data.error.code || 'API error');
                 }
                 const content = data.choices?.[0]?.message?.content || '';
 
                 if (!content) {
+                    diag('❌ Empty response', '#FF6B6B');
                     throw new Error('Empty response from AI');
                 }
+
+                diag('🔍 Parsing JSON...', '#FFD93D');
 
                 // Parse JSON response with improved robustness
                 let listingData;
@@ -556,14 +594,17 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     console.error('[ListingClick] Raw API content:', content);
                     console.error('[ListingClick] Clean content:', cleanContent);
                     console.error('[ListingClick] Last parse error:', parseError);
+                    diag('❌ JSON parse failed', '#FF6B6B');
                     throw new Error('AI returned invalid JSON. Please try again.');
                 }
 
+                diag('🎉 Success! Rendering results...', '#A0E8AF');
                 renderResults(listingData);
             } catch (err) {
                 console.error('[ListingClick] Listing generation error:', err);
                 console.error('[ListingClick] Error name:', err.name);
                 console.error('[ListingClick] Error message:', err.message);
+                clearInterval(diagTimerInterval);
                 
                 // Always hide loading state first
                 document.getElementById('loadingState').style.display = 'none';
@@ -575,6 +616,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     errMsg = 'Network error. Please check your internet connection and try again.';
                 }
                 
+                diag('❌ Error: ' + errMsg, '#FF6B6B');
                 document.getElementById('errorMessage').textContent = errMsg;
                 document.getElementById('errorState').style.display = 'block';
             }
