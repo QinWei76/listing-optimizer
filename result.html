@@ -279,7 +279,7 @@
         <div class="loading-state" id="loadingState">
             <div class="loading-spinner"></div>
             <div class="loading-text">Generating your listing...</div>
-            <div class="loading-sub">Optimizing for Amazon, Shopify & Etsy</div>
+            <div class="loading-sub" id="loadingSub">Optimizing for Amazon, Shopify & Etsy</div>
 
         </div>
 
@@ -428,6 +428,7 @@
             document.getElementById('loadingState').style.display = 'flex';
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('errorState').style.display = 'none';
+            document.getElementById('loadingSub').textContent = 'Optimizing for Amazon, Shopify & Etsy';
 
             // Build the product context
             let productContext = '';
@@ -459,14 +460,10 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 }`;
 
             try {
-                console.log('[ListingClick] Starting API call...');
-                console.log('[ListingClick] API_URL:', API_URL);
-                console.log('[ListingClick] MODEL:', MODEL);
-                console.log('[ListingClick] Input text length:', productContext.length);
-                console.log('[ListingClick] Timeout set to 45s');
+                console.log('[ListingClick] Starting streaming API call...');
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => { console.log("[ListingClick] Timeout reached, aborting..."); controller.abort(); }, 45000);
+                const timeoutId = setTimeout(() => { controller.abort(); }, 45000);
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
@@ -477,23 +474,57 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                             { role: 'user', content: textPrompt }
                         ],
                         temperature: 0.3,
-                        max_tokens: 3000
+                        max_tokens: 3000,
+                        stream: true
                     }),
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
-                console.log("[ListingClick] Response received, timeout cleared");
-                console.log('[ListingClick] API response status:', res.status);
 
                 if (!res.ok) {
-                    throw new Error(`API returned ${res.status}: ${res.statusText}`);
+                    const errText = await res.text();
+                    throw new Error(`API returned ${res.status}: ${errText}`);
                 }
 
-                const data = await res.json();
-                if (data.error) {
-                    throw new Error(data.error.message || data.error.code || 'API error');
+                // Read SSE stream
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let content = '';
+                let buffer = '';
+                let tokenCount = 0;
+                const loadingSub = document.getElementById('loadingSub');
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6).trim();
+                            if (data === '[DONE]') continue;
+                            try {
+                                const parsed = JSON.parse(data);
+                                const delta = parsed.choices?.[0]?.delta?.content || '';
+                                if (delta) {
+                                    content += delta;
+                                    tokenCount++;
+                                    if (loadingSub && tokenCount % 5 === 0) {
+                                        loadingSub.textContent = `Generating... (${content.length} chars)`;
+                                    }
+                                }
+                            } catch (e) {
+                                // skip malformed SSE line
+                            }
+                        }
+                    }
                 }
-                const content = data.choices?.[0]?.message?.content || '';
+
+                if (loadingSub) loadingSub.textContent = 'Processing results...';
+                console.log('[ListingClick] Streaming complete, total chars:', content.length);
 
                 if (!content) {
                     throw new Error('Empty response from AI');
