@@ -137,32 +137,254 @@
             width: 100%;
             max-width: 640px;
             margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+            border: 2px solid #E5E7EB;
+            border-radius: 16px;
+            background: #FAFBFC;
+            transition: all 0.25s;
+            overflow: hidden;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #0099CC;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(0, 153, 204, 0.08);
+        }
+
+        .input-wrapper.drag-over {
+            border-color: #0099CC;
+            background: rgba(0, 153, 204, 0.04);
+            box-shadow: 0 0 0 4px rgba(0, 153, 204, 0.12);
+        }
+
+        .input-wrapper.has-image {
+            border-color: #0099CC;
         }
 
         .input-box {
             width: 100%;
             min-height: 120px;
             padding: 20px 24px;
-            border: 2px solid #E5E7EB;
-            border-radius: 16px;
+            border: none;
             font-size: 16px;
             font-family: inherit;
             color: #1A1D26;
-            background: #FAFBFC;
+            background: transparent;
             resize: none;
             outline: none;
-            transition: all 0.25s;
             line-height: 1.5;
-        }
-
-        .input-box:focus {
-            border-color: #0099CC;
-            background: #FFFFFF;
-            box-shadow: 0 0 0 4px rgba(0, 153, 204, 0.08);
         }
 
         .input-box::placeholder {
             color: #9CA3AF;
+        }
+
+        /* Input toolbar */
+        .input-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-top: 1px solid #F0F1F3;
+            min-height: 44px;
+        }
+
+        .input-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .input-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border: 1px dashed #D1D5DB;
+            border-radius: 8px;
+            background: transparent;
+            color: #6B7280;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-upload:hover {
+            border-color: #0099CC;
+            color: #0099CC;
+            background: rgba(0, 153, 204, 0.04);
+        }
+
+        .btn-upload svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Image preview in input */
+        .image-preview-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: #F7F8FA;
+            border-bottom: 1px solid #F0F1F3;
+            animation: slideDown 0.2s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .image-preview-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid #E5E7EB;
+        }
+
+        .image-preview-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .image-preview-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .image-preview-status {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-top: 2px;
+        }
+
+        .image-preview-status.analyzing {
+            color: #0099CC;
+        }
+
+        .image-preview-status.done {
+            color: #16A34A;
+        }
+
+        .image-preview-status.error {
+            color: #DC2626;
+        }
+
+        .btn-remove-image {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: #9CA3AF;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .btn-remove-image:hover {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        /* Link badge */
+        .link-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #2563EB;
+            font-weight: 500;
+            max-width: 200px;
+        }
+
+        .link-badge svg {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+        }
+
+        .link-badge-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Drag overlay */
+        .drag-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 153, 204, 0.06);
+            border: 2px dashed #0099CC;
+            border-radius: 14px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .drag-overlay.visible {
+            display: flex;
+        }
+
+        .drag-overlay-icon {
+            width: 40px;
+            height: 40px;
+            color: #0099CC;
+            opacity: 0.7;
+        }
+
+        .drag-overlay-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0099CC;
+            opacity: 0.8;
+        }
+
+        /* Analyzing spinner */
+        .analyzing-spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #E5E7EB;
+            border-top-color: #0099CC;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Hidden file input */
+        .file-input-hidden {
+            display: none;
         }
 
         /* Generate Button */
@@ -189,6 +411,13 @@
 
         .btn-generate:active {
             transform: translateY(0);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .hero-note {
@@ -346,8 +575,51 @@
         <h1 class="hero-slogan">No bother with listings,<br>leave it to us!</h1>
         <p class="hero-sub">AI-powered listings for every marketplace — in seconds.</p>
 
-        <div class="input-container">
-            <textarea class="input-box" placeholder="Paste your product link, describe your product, or upload an image..." rows="4"></textarea>
+        <div class="input-container" id="inputContainer">
+            <div class="input-wrapper" id="inputWrapper">
+                <!-- Drag overlay -->
+                <div class="drag-overlay" id="dragOverlay">
+                    <svg class="drag-overlay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span class="drag-overlay-text">Drop image here</span>
+                </div>
+
+                <!-- Image preview -->
+                <div class="image-preview-container" id="imagePreview" style="display:none;">
+                    <img class="image-preview-thumb" id="imagePreviewThumb" src="" alt="Preview">
+                    <div class="image-preview-info">
+                        <div class="image-preview-name" id="imagePreviewName"></div>
+                        <div class="image-preview-status" id="imagePreviewStatus"></div>
+                    </div>
+                    <button class="btn-remove-image" id="btnRemoveImage" title="Remove image">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Text input -->
+                <textarea class="input-box" id="inputBox" placeholder="Paste a product link, describe your product, or drop an image..." rows="4"></textarea>
+
+                <!-- Toolbar -->
+                <div class="input-toolbar">
+                    <div class="input-toolbar-left" id="toolbarLeft">
+                        <button class="btn-upload" id="btnUpload" title="Upload product image">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            Image
+                        </button>
+                    </div>
+                    <div class="input-toolbar-right" id="toolbarRight"></div>
+                </div>
+            </div>
         </div>
 
         <button class="btn-generate" id="generateBtn">
@@ -365,7 +637,6 @@
             <div class="platform-logos">
                 <div class="platform-item">
                     <svg class="platform-icon" viewBox="0 0 24 24" fill="none">
-                        <!-- Amazon flat: bold 'a' with smile arrow -->
                         <circle cx="10" cy="11.5" r="4.5" stroke="currentColor" stroke-width="2.4" fill="none"/>
                         <line x1="14.5" y1="7" x2="14.5" y2="16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
                         <path d="M4 19c3.5 2 8 2 11.5 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -375,7 +646,6 @@
                 </div>
                 <div class="platform-item">
                     <svg class="platform-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <!-- Shopify flat: shopping bag -->
                         <path d="M7.5 7L9 2.5c.2-.6.7-1 1.3-1h3.4c.6 0 1.1.4 1.3 1L16.5 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                         <rect x="4" y="7" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
                         <path d="M9.5 7c0 0 .5 2.5 2.5 2.5s2.5-2.5 2.5-2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -384,7 +654,6 @@
                 </div>
                 <div class="platform-item">
                     <svg class="platform-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <!-- Etsy flat: bold E -->
                         <rect x="4" y="3" width="16" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/>
                         <path d="M8 8h8M8 12h6M8 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
@@ -404,18 +673,471 @@
         </div>
     </footer>
 
+    <!-- Hidden file input -->
+    <input type="file" class="file-input-hidden" id="fileInput" accept="image/*">
+
     <script>
-        document.getElementById('generateBtn').addEventListener('click', function() {
-            const input = document.querySelector('.input-box').value.trim();
-            if (!input) {
-                document.querySelector('.input-box').focus();
-                document.querySelector('.input-box').style.borderColor = '#DC2626';
-                setTimeout(() => { document.querySelector('.input-box').style.borderColor = '#E5E7EB'; }, 2000);
+        // === Config ===
+        const API_URL = 'https://api.deepseek.com/chat/completions';
+        const API_KEY = 'sk-23d562237724474fbf489b29843043a6';
+        const MODEL = 'deepseek-chat';
+
+        // === DOM refs ===
+        const inputContainer = document.getElementById('inputContainer');
+        const inputWrapper = document.getElementById('inputWrapper');
+        const inputBox = document.getElementById('inputBox');
+        const dragOverlay = document.getElementById('dragOverlay');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePreviewThumb = document.getElementById('imagePreviewThumb');
+        const imagePreviewName = document.getElementById('imagePreviewName');
+        const imagePreviewStatus = document.getElementById('imagePreviewStatus');
+        const btnRemoveImage = document.getElementById('btnRemoveImage');
+        const btnUpload = document.getElementById('btnUpload');
+        const fileInput = document.getElementById('fileInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const toolbarLeft = document.getElementById('toolbarLeft');
+
+        // === State ===
+        let uploadedImageBase64 = null;
+        let imageAnalysisResult = null;
+        let isAnalyzing = false;
+        let detectedUrl = null;
+
+        // === URL detection ===
+        const URL_REGEX = /https?:\/\/[^\s<>"]+/gi;
+        const PRODUCT_URL_PATTERNS = [
+            /amazon\.(com|co\.uk|de|fr|it|es|ca|com\.au|com\.br|in|co\.jp|com\.mx|nl|pl|se|com\.be|com\.tr|ae|sa|eg|sg)/i,
+            /etsy\.com/i,
+            /shopify\.com/i,
+            /ebay\.com/i,
+            /walmart\.com/i,
+            /aliexpress\.com/i,
+            /temu\.com/i,
+            /wish\.com/i,
+            /mercari\.com/i,
+            /poshmark\.com/i
+        ];
+
+        function detectUrl(text) {
+            const urls = text.match(URL_REGEX);
+            if (!urls || urls.length === 0) {
+                detectedUrl = null;
+                updateLinkBadge();
                 return;
             }
-            localStorage.setItem('listing_input', input);
+            const url = urls[0];
+            const isProductUrl = PRODUCT_URL_PATTERNS.some(p => p.test(url));
+            detectedUrl = { url, isProduct: isProductUrl };
+            updateLinkBadge();
+        }
+
+        function updateLinkBadge() {
+            const existing = toolbarLeft.querySelector('.link-badge');
+            if (existing) existing.remove();
+
+            if (!detectedUrl) return;
+
+            const badge = document.createElement('span');
+            badge.className = 'link-badge';
+            const icon = detectedUrl.isProduct
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>';
+            const label = detectedUrl.isProduct ? 'Product link detected' : 'Link detected';
+            badge.innerHTML = icon + '<span class="link-badge-text">' + escapeHtml(detectedUrl.url) + '</span>';
+            badge.title = detectedUrl.url;
+            toolbarLeft.appendChild(badge);
+        }
+
+        // === Image handling ===
+
+        // Click upload button
+        btnUpload.addEventListener('click', () => fileInput.click());
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleImageFile(e.target.files[0]);
+            }
+            fileInput.value = ''; // reset so same file can be re-selected
+        });
+
+        // Drag & drop
+        let dragCounter = 0;
+
+        inputWrapper.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter++;
+            if (hasImageDrag(e)) {
+                dragOverlay.classList.add('visible');
+                inputWrapper.classList.add('drag-over');
+            }
+        });
+
+        inputWrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        inputWrapper.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter--;
+            if (dragCounter <= 0) {
+                dragCounter = 0;
+                dragOverlay.classList.remove('visible');
+                inputWrapper.classList.remove('drag-over');
+            }
+        });
+
+        inputWrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter = 0;
+            dragOverlay.classList.remove('visible');
+            inputWrapper.classList.remove('drag-over');
+
+            const items = e.dataTransfer.items;
+            if (items) {
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].kind === 'file' && items[i].type.startsWith('image/')) {
+                        const file = items[i].getAsFile();
+                        if (file) handleImageFile(file);
+                        return;
+                    }
+                    // Handle URL drops
+                    if (items[i].kind === 'string') {
+                        const text = e.dataTransfer.getData('text/plain');
+                        if (text && URL_REGEX.test(text)) {
+                            handleUrlDrop(text);
+                            return;
+                        }
+                    }
+                }
+            }
+            // Fallback: check files
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                const file = e.dataTransfer.files[0];
+                if (file.type.startsWith('image/')) {
+                    handleImageFile(file);
+                }
+            }
+        });
+
+        function hasImageDrag(e) {
+            if (e.dataTransfer.types) {
+                for (let i = 0; i < e.dataTransfer.types.length; i++) {
+                    if (e.dataTransfer.types[i] === 'Files') return true;
+                }
+            }
+            return false;
+        }
+
+        function handleUrlDrop(url) {
+            inputBox.value = url;
+            detectUrl(url);
+            inputBox.focus();
+        }
+
+        // Paste handler (image + URL)
+        inputBox.addEventListener('paste', (e) => {
+            const clipboardData = e.clipboardData;
+            if (!clipboardData) return;
+
+            // Check for images
+            const items = clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.startsWith('image/')) {
+                    e.preventDefault();
+                    const file = items[i].getAsFile();
+                    if (file) handleImageFile(file);
+                    return;
+                }
+            }
+
+            // Check for URL in pasted text (will be detected after paste)
+            setTimeout(() => {
+                detectUrl(inputBox.value);
+            }, 50);
+        });
+
+        // Also detect URLs on regular typing
+        inputBox.addEventListener('input', () => {
+            detectUrl(inputBox.value);
+        });
+
+        // Process image file
+        async function handleImageFile(file) {
+            if (!file.type.startsWith('image/')) return;
+
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Image is too large. Please use an image under 10MB.');
+                return;
+            }
+
+            // Show preview immediately
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const dataUrl = e.target.result;
+
+                // Show preview
+                imagePreviewThumb.src = dataUrl;
+                imagePreviewName.textContent = file.name || 'Pasted image';
+                imagePreviewStatus.textContent = 'Analyzing product...';
+                imagePreviewStatus.className = 'image-preview-status analyzing';
+                imagePreview.style.display = 'flex';
+                inputWrapper.classList.add('has-image');
+
+                // Compress and analyze
+                try {
+                    const compressed = await compressImage(dataUrl, 800, 0.8);
+                    uploadedImageBase64 = compressed;
+                    await analyzeProductImage(compressed);
+                } catch (err) {
+                    console.error('Image processing error:', err);
+                    imagePreviewStatus.textContent = 'Image upload failed';
+                    imagePreviewStatus.className = 'image-preview-status error';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Compress image using canvas
+        function compressImage(dataUrl, maxDim, quality) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    let w = img.width;
+                    let h = img.height;
+
+                    // Scale down if needed
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round(h * maxDim / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round(w * maxDim / h);
+                            h = maxDim;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    const compressed = canvas.toDataURL('image/jpeg', quality);
+                    // Extract base64 part
+                    const base64 = compressed.split(',')[1];
+                    resolve(base64);
+                };
+                img.onerror = reject;
+                img.src = dataUrl;
+            });
+        }
+
+        // Analyze product image via AI
+        async function analyzeProductImage(base64) {
+            isAnalyzing = true;
+            generateBtn.disabled = true;
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + API_KEY
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: `You are a product identification expert for e-commerce. Analyze this product image and extract ALL visible information that would help create a product listing. Include:
+
+1. Product name/type (what is it?)
+2. Brand (if visible on product or packaging)
+3. Key visible features and design elements
+4. Materials (if apparent)
+5. Colors
+6. Approximate size/dimensions (if discernible)
+7. Target audience / use case
+8. Category (e.g., electronics, clothing, home & kitchen, etc.)
+9. Any text visible on the product or packaging
+
+Return the information as a concise, well-organized paragraph that can be used as product context for generating an e-commerce listing. Focus on factual, observable details.`
+                                },
+                                {
+                                    type: 'image_url',
+                                    image_url: {
+                                        url: 'data:image/jpeg;base64,' + base64
+                                    }
+                                }
+                            ]
+                        }],
+                        temperature: 0.3,
+                        max_tokens: 1000
+                    })
+                });
+
+                const data = await res.json();
+                const content = data.choices?.[0]?.message?.content || '';
+
+                if (content) {
+                    imageAnalysisResult = content.trim();
+                    imagePreviewStatus.textContent = 'Product recognized ✓';
+                    imagePreviewStatus.className = 'image-preview-status done';
+
+                    // Pre-fill the textarea with the analysis
+                    const currentText = inputBox.value.trim();
+                    if (!currentText) {
+                        inputBox.value = imageAnalysisResult;
+                    } else if (!currentText.includes(imageAnalysisResult.substring(0, 50))) {
+                        // Append if not already there
+                        inputBox.value = currentText + '\n\n[Image Analysis]\n' + imageAnalysisResult;
+                    }
+                } else {
+                    throw new Error('Empty response');
+                }
+            } catch (err) {
+                console.error('Image analysis error:', err);
+
+                // Try alternative model for vision
+                try {
+                    const res2 = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + API_KEY
+                        },
+                        body: JSON.stringify({
+                            model: 'deepseek-v4-flash',
+                            messages: [{
+                                role: 'user',
+                                content: [
+                                    {
+                                        type: 'text',
+                                        text: `You are a product identification expert for e-commerce. Analyze this product image and extract ALL visible information. Include: product name/type, brand, key features, materials, colors, size, target audience, category, any visible text. Return as a concise paragraph.`
+                                    },
+                                    {
+                                        type: 'image_url',
+                                        image_url: {
+                                            url: 'data:image/jpeg;base64,' + base64
+                                        }
+                                    }
+                                ]
+                            }],
+                            temperature: 0.3,
+                            max_tokens: 1000
+                        })
+                    });
+
+                    const data2 = await res2.json();
+                    const content2 = data2.choices?.[0]?.message?.content || '';
+
+                    if (content2) {
+                        imageAnalysisResult = content2.trim();
+                        imagePreviewStatus.textContent = 'Product recognized ✓';
+                        imagePreviewStatus.className = 'image-preview-status done';
+
+                        const currentText = inputBox.value.trim();
+                        if (!currentText) {
+                            inputBox.value = imageAnalysisResult;
+                        } else if (!currentText.includes(imageAnalysisResult.substring(0, 50))) {
+                            inputBox.value = currentText + '\n\n[Image Analysis]\n' + imageAnalysisResult;
+                        }
+                    } else {
+                        throw new Error('Empty response from fallback model');
+                    }
+                } catch (err2) {
+                    console.error('Fallback vision error:', err2);
+                    imagePreviewStatus.textContent = 'Image uploaded (analysis unavailable)';
+                    imagePreviewStatus.className = 'image-preview-status error';
+                    // Still keep the image, user can describe manually
+                    imageAnalysisResult = null;
+                }
+            }
+
+            isAnalyzing = false;
+            generateBtn.disabled = false;
+        }
+
+        // Remove image
+        btnRemoveImage.addEventListener('click', () => {
+            uploadedImageBase64 = null;
+            imageAnalysisResult = null;
+            imagePreview.style.display = 'none';
+            inputWrapper.classList.remove('has-image');
+
+            // Remove image analysis from textarea
+            const text = inputBox.value;
+            const idx = text.indexOf('\n\n[Image Analysis]\n');
+            if (idx !== -1) {
+                inputBox.value = text.substring(0, idx);
+            }
+        });
+
+        // === Generate ===
+        generateBtn.addEventListener('click', function() {
+            const input = inputBox.value.trim();
+
+            if (!input && !uploadedImageBase64) {
+                inputBox.focus();
+                inputWrapper.style.borderColor = '#DC2626';
+                setTimeout(() => { inputWrapper.style.borderColor = '#E5E7EB'; }, 2000);
+                return;
+            }
+
+            // Build the data to pass to result page
+            let dataToPass = {};
+
+            if (input) {
+                dataToPass.text = input;
+            }
+
+            if (uploadedImageBase64) {
+                dataToPass.imageBase64 = uploadedImageBase64;
+            }
+
+            if (detectedUrl) {
+                dataToPass.url = detectedUrl.url;
+                dataToPass.isProductUrl = detectedUrl.isProduct;
+            }
+
+            // Store in localStorage (base64 can be large, but localStorage allows ~5-10MB)
+            try {
+                localStorage.setItem('listing_input_data', JSON.stringify(dataToPass));
+                // Also set legacy key for backward compatibility
+                localStorage.setItem('listing_input', input || '[Image]');
+            } catch (e) {
+                // If localStorage is full, try without image
+                console.warn('localStorage full, trying without image data');
+                dataToPass.imageBase64 = null;
+                localStorage.setItem('listing_input_data', JSON.stringify(dataToPass));
+                localStorage.setItem('listing_input', input || '[Image]');
+            }
+
             window.location.href = 'result.html';
         });
+
+        // === Also handle Enter key ===
+        inputBox.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                generateBtn.click();
+            }
+        });
+
+        // === Helpers ===
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
     </script>
 
 </body>

@@ -357,8 +357,9 @@
         const MODEL = 'deepseek-chat';
 
         // Platform-specific limits for character counting
+        // Amazon: title capped at 75 chars from July 27, 2026; new "Item Highlights" field adds 125 chars
         const PLATFORM_LIMITS = {
-            amazon:  { title: 200, bullets: 500, description: 2000, keywords: 250 },
+            amazon:  { title: 75,  highlights: 125, bullets: 500, description: 2000, keywords: 250 },
             shopify: { title: 70,  bullets: 300, description: 2000, keywords: 200 },
             etsy:    { title: 140, bullets: 300, description: 2000, keywords: 200 }
         };
@@ -366,47 +367,107 @@
         let currentPlatform = 'amazon';
         let listingData = null;
 
-        // Get input from URL params or localStorage
-        function getInput() {
+        // Get input data from localStorage
+        function getInputData() {
+            // Try new format first
+            try {
+                const raw = localStorage.getItem('listing_input_data');
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    return {
+                        text: data.text || '',
+                        imageBase64: data.imageBase64 || null,
+                        url: data.url || null,
+                        isProductUrl: data.isProductUrl || false
+                    };
+                }
+            } catch (e) {}
+
+            // Fallback to legacy format
             const params = new URLSearchParams(window.location.search);
             const fromUrl = params.get('input');
-            if (fromUrl) return decodeURIComponent(fromUrl);
-            return localStorage.getItem('listing_input') || '';
+            if (fromUrl) return { text: decodeURIComponent(fromUrl), imageBase64: null, url: null, isProductUrl: false };
+            const legacy = localStorage.getItem('listing_input');
+            if (legacy) return { text: legacy, imageBase64: null, url: null, isProductUrl: false };
+            return null;
+        }
+
+        function getInput() {
+            const data = getInputData();
+            return data ? data.text : '';
         }
 
         // Initialize
         async function init() {
-            const input = getInput();
-            if (!input) {
+            const inputData = getInputData();
+            if (!inputData || (!inputData.text && !inputData.imageBase64)) {
                 window.location.href = 'index.html';
                 return;
             }
-            document.getElementById('inputSummaryText').textContent = input.length > 200 ? input.substring(0, 200) + '...' : input;
-            await generateListing(input);
+
+            // Display input summary
+            let summaryText = inputData.text || '[Product Image]';
+            if (inputData.url) {
+                summaryText = inputData.url + (inputData.text ? '\n' + inputData.text : '');
+            }
+            if (inputData.imageBase64 && inputData.text) {
+                summaryText = '[Image] ' + inputData.text;
+            }
+            document.getElementById('inputSummaryText').textContent = summaryText.length > 200 ? summaryText.substring(0, 200) + '...' : summaryText;
+
+            await generateListing(inputData);
         }
 
-        // Call AI to generate listing
-        async function generateListing(input) {
+        // Call AI to generate listing (supports text + image input)
+        async function generateListing(inputData) {
+            // Normalize: if string passed, convert to object
+            if (typeof inputData === 'string') {
+                inputData = { text: inputData, imageBase64: null, url: null, isProductUrl: false };
+            }
+
             document.getElementById('loadingState').style.display = 'flex';
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('errorState').style.display = 'none';
 
-            const prompt = `You are an expert e-commerce listing optimizer. Generate optimized product listings for three platforms: Amazon, Shopify, and Etsy.
+            // Build the product context
+            let productContext = '';
+            if (inputData.url) {
+                productContext += `[Product URL: ${inputData.url}]\n`;
+            }
+            if (inputData.text) {
+                productContext += inputData.text;
+            }
 
-Product information: ${input}
+            const textPrompt = `You are an expert e-commerce listing optimizer. Generate optimized product listings for three platforms: Amazon, Shopify, and Etsy.
+
+Product information: ${productContext || '[Analyze the provided product image to determine product details]'}
+
+${inputData.url ? 'Note: This is a product page URL. Use your knowledge to generate listings based on the URL context and product information.' : ''}
 
 For each platform, generate:
-- title: An optimized product title following that platform's best practices (Amazon: keyword-rich, 200 chars max; Shopify: clean and branded, 70 chars max; Etsy: SEO-optimized with key attributes, 140 chars max)
+- title: An optimized product title following that platform's best practices (Amazon: concise, keyword-rich, STRICT 75 chars max including spaces — brand + core product + key spec; Shopify: clean and branded, 70 chars max; Etsy: SEO-optimized with key attributes, 140 chars max)
+- item_highlights: (Amazon ONLY — skip for Shopify/Etsy) Up to 125 chars of supplementary info: materials, recommended use cases, key specs that don't fit in the title. This is a searchable field displayed below the title.
 - bullet_points: 5 key feature bullet points (Amazon-style for all platforms, but adjusted for each platform's tone)
 - description: A compelling product description (200-300 words)
 - keywords: 10 relevant search keywords/tags
 
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 {
-  "amazon": {"title": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]},
+  "amazon": {"title": "", "item_highlights": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]},
   "shopify": {"title": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]},
   "etsy": {"title": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]}
 }`;
+
+            // Build message content (with or without image)
+            let messageContent;
+            if (inputData.imageBase64) {
+                messageContent = [
+                    { type: 'text', text: textPrompt + '\n\nAlso analyze this product image for additional context:' },
+                    { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + inputData.imageBase64 } }
+                ];
+            } else {
+                messageContent = textPrompt;
+            }
 
             try {
                 const res = await fetch(API_URL, {
@@ -414,7 +475,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
                     body: JSON.stringify({
                         model: MODEL,
-                        messages: [{ role: 'user', content: prompt }],
+                        messages: [{ role: 'user', content: messageContent }],
                         temperature: 0.7,
                         max_tokens: 3000
                     })
@@ -422,6 +483,22 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 
                 const data = await res.json();
                 let content = data.choices?.[0]?.message?.content || '';
+
+                // If deepseek-chat doesn't support vision, try deepseek-v4-flash
+                if (!content && inputData.imageBase64) {
+                    const res2 = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+                        body: JSON.stringify({
+                            model: 'deepseek-v4-flash',
+                            messages: [{ role: 'user', content: messageContent }],
+                            temperature: 0.7,
+                            max_tokens: 3000
+                        })
+                    });
+                    const data2 = await res2.json();
+                    content = data2.choices?.[0]?.message?.content || '';
+                }
 
                 const jsonMatch = content.match(/\{[\s\S]*\}/);
                 if (!jsonMatch) throw new Error('Invalid response format');
@@ -441,8 +518,9 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 
         // Regenerate a single section
         async function regenerateSection(sectionType) {
-            const input = getInput();
-            if (!input || !listingData) return;
+            const inputData = getInputData();
+            if ((!inputData || (!inputData.text && !inputData.imageBase64)) || !listingData) return;
+            const input = inputData.text || '';
 
             const btn = document.querySelector(`[data-regen="${sectionType}"]`);
             if (btn) {
@@ -451,7 +529,8 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             }
 
             const prompts = {
-                title: `Generate a single optimized product title for ${currentPlatform}. Product: ${input}. Amazon: keyword-rich 200 chars max. Shopify: clean branded 70 chars max. Etsy: SEO-optimized 140 chars max. Return ONLY a JSON object: {"title": "..."}`,
+                title: `Generate a single optimized product title for ${currentPlatform}. Product: ${input}. Amazon: concise keyword-rich STRICT 75 chars max. Shopify: clean branded 70 chars max. Etsy: SEO-optimized 140 chars max. Return ONLY a JSON object: {"title": "..."}`,
+                highlights: `Generate item highlights for Amazon (supplement to title). Product: ${input}. Max 125 chars. Include materials, use cases, key specs that complement the title. Return ONLY a JSON object: {"item_highlights": "..."}`,
                 bullets: `Generate exactly 5 key feature bullet points for ${currentPlatform}. Product: ${input}. Return ONLY a JSON object: {"bullet_points": ["...", "...", "...", "...", "..."]}`,
                 description: `Generate a compelling product description (200-300 words) for ${currentPlatform}. Product: ${input}. Return ONLY a JSON object: {"description": "..."}`,
                 keywords: `Generate exactly 10 relevant search keywords/tags for ${currentPlatform}. Product: ${input}. Return ONLY a JSON object: {"keywords": ["...", ...]}`
@@ -499,9 +578,31 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 
             // Character counts
             const titleLen = data.title.length;
+            const highlightsLen = (data.item_highlights || '').length;
             const bulletsLen = data.bullet_points.join('\n').length;
             const descLen = data.description.length;
             const kwLen = data.keywords.join(', ').length;
+            const hasHighlights = data.item_highlights !== undefined;
+
+            // Build highlights section HTML (Amazon only)
+            const highlightsHTML = hasHighlights ? `
+                <div class="result-section">
+                    <div class="result-section-header">
+                        <div class="result-section-left">
+                            <span class="result-section-title">Item Highlights</span>
+                            <span class="char-count ${getCountClass(highlightsLen, limits.highlights || 125)}">${highlightsLen}/${limits.highlights || 125}</span>
+                        </div>
+                        <div class="result-section-actions">
+                            <button class="btn-action" data-regen="highlights" onclick="regenerateSection('item_highlights')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                Retry
+                            </button>
+                            <button class="btn-action" onclick="copySection('highlights', this)">Copy</button>
+                        </div>
+                    </div>
+                    <div class="result-content highlights-content" contenteditable="true" data-field="item_highlights" oninput="onContentEdit(this)">${escapeHtml(data.item_highlights)}</div>
+                </div>
+            ` : '';
 
             container.innerHTML = `
                 <div class="result-section">
@@ -520,6 +621,8 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     </div>
                     <div class="result-content title-content" contenteditable="true" data-field="title" oninput="onContentEdit(this)">${escapeHtml(data.title)}</div>
                 </div>
+
+                ${highlightsHTML}
 
                 <div class="result-section">
                     <div class="result-section-header">
@@ -603,16 +706,25 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
         function updateCharCounts() {
             const data = listingData[currentPlatform];
             const limits = PLATFORM_LIMITS[currentPlatform];
+            const hasHighlights = data.item_highlights !== undefined;
+
+            // Build counts array dynamically
             const counts = [
-                { el: 0, val: data.title.length, limit: limits.title },
-                { el: 1, val: data.bullet_points.join('\n').length, limit: limits.bullets },
-                { el: 2, val: data.description.length, limit: limits.description },
-                { el: 3, val: data.keywords.join(', ').length, limit: limits.keywords }
+                { val: data.title.length, limit: limits.title, showLimit: true }
             ];
+            if (hasHighlights) {
+                counts.push({ val: (data.item_highlights || '').length, limit: limits.highlights || 125, showLimit: true });
+            }
+            counts.push(
+                { val: data.bullet_points.join('\n').length, limit: limits.bullets, showLimit: false },
+                { val: data.description.length, limit: limits.description, showLimit: false },
+                { val: data.keywords.join(', ').length, limit: limits.keywords, showLimit: false }
+            );
+
             const badges = document.querySelectorAll('.char-count');
             counts.forEach((c, i) => {
                 if (badges[i]) {
-                    const label = i === 0 ? `${c.val}/${c.limit}` : `${c.val} chars`;
+                    const label = c.showLimit ? `${c.val}/${c.limit}` : `${c.val} chars`;
                     badges[i].textContent = label;
                     badges[i].className = 'char-count ' + getCountClass(c.val, c.limit);
                 }
@@ -631,33 +743,61 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             if (!listingData) return;
             const data = listingData[currentPlatform];
             const limits = PLATFORM_LIMITS[currentPlatform];
+            const hasHighlights = data.item_highlights !== undefined;
 
             let score = 0;
             const details = [];
 
-            // Title score (30 pts)
-            const titleRatio = data.title.length / limits.title;
-            const titleScore = Math.min(30, Math.round(titleRatio > 0.3 && titleRatio <= 1 ? 30 : titleRatio > 1 ? 20 : titleRatio * 30));
-            score += titleScore;
-            details.push(`Title ${titleScore}/30`);
+            if (hasHighlights) {
+                // Amazon scoring: Title 25 + Highlights 15 + Features 25 + Description 20 + Keywords 15 = 100
+                const titleRatio = data.title.length / limits.title;
+                const titleScore = Math.min(25, Math.round(titleRatio > 0.4 && titleRatio <= 1 ? 25 : titleRatio > 1 ? 15 : titleRatio * 25));
+                score += titleScore;
+                details.push(`Title ${titleScore}/25`);
 
-            // Bullets score (25 pts)
-            const bulletsCount = data.bullet_points.length;
-            const bulletsScore = Math.min(25, Math.round((bulletsCount / 5) * 25));
-            score += bulletsScore;
-            details.push(`Features ${bulletsScore}/25`);
+                const hlLen = (data.item_highlights || '').length;
+                const hlLimit = limits.highlights || 125;
+                const hlRatio = hlLen / hlLimit;
+                const hlScore = Math.min(15, Math.round(hlRatio > 0.3 && hlRatio <= 1 ? 15 : hlRatio > 1 ? 8 : hlRatio * 15));
+                score += hlScore;
+                details.push(`Highlights ${hlScore}/15`);
 
-            // Description score (25 pts)
-            const descWords = data.description.split(/\s+/).length;
-            const descScore = descWords >= 150 && descWords <= 350 ? 25 : descWords >= 100 ? 20 : descWords >= 50 ? 15 : 10;
-            score += descScore;
-            details.push(`Description ${descScore}/25`);
+                const bulletsCount = data.bullet_points.length;
+                const bulletsScore = Math.min(25, Math.round((bulletsCount / 5) * 25));
+                score += bulletsScore;
+                details.push(`Features ${bulletsScore}/25`);
 
-            // Keywords score (20 pts)
-            const kwCount = data.keywords.length;
-            const kwScore = Math.min(20, Math.round((kwCount / 10) * 20));
-            score += kwScore;
-            details.push(`Keywords ${kwScore}/20`);
+                const descWords = data.description.split(/\s+/).length;
+                const descScore = descWords >= 150 && descWords <= 350 ? 20 : descWords >= 100 ? 15 : descWords >= 50 ? 10 : 5;
+                score += descScore;
+                details.push(`Description ${descScore}/20`);
+
+                const kwCount = data.keywords.length;
+                const kwScore = Math.min(15, Math.round((kwCount / 10) * 15));
+                score += kwScore;
+                details.push(`Keywords ${kwScore}/15`);
+            } else {
+                // Standard scoring: Title 30 + Features 25 + Description 25 + Keywords 20 = 100
+                const titleRatio = data.title.length / limits.title;
+                const titleScore = Math.min(30, Math.round(titleRatio > 0.3 && titleRatio <= 1 ? 30 : titleRatio > 1 ? 20 : titleRatio * 30));
+                score += titleScore;
+                details.push(`Title ${titleScore}/30`);
+
+                const bulletsCount = data.bullet_points.length;
+                const bulletsScore = Math.min(25, Math.round((bulletsCount / 5) * 25));
+                score += bulletsScore;
+                details.push(`Features ${bulletsScore}/25`);
+
+                const descWords = data.description.split(/\s+/).length;
+                const descScore = descWords >= 150 && descWords <= 350 ? 25 : descWords >= 100 ? 20 : descWords >= 50 ? 15 : 10;
+                score += descScore;
+                details.push(`Description ${descScore}/25`);
+
+                const kwCount = data.keywords.length;
+                const kwScore = Math.min(20, Math.round((kwCount / 10) * 20));
+                score += kwScore;
+                details.push(`Keywords ${kwScore}/20`);
+            }
 
             document.getElementById('scoreFill').style.width = score + '%';
             document.getElementById('scoreValue').textContent = score;
@@ -681,6 +821,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             const data = listingData[currentPlatform];
             let text = '';
             if (type === 'title') text = data.title;
+            else if (type === 'highlights') text = data.item_highlights || '';
             else if (type === 'bullets') text = data.bullet_points.join('\n');
             else if (type === 'description') text = data.description;
             else if (type === 'keywords') text = data.keywords.join(', ');
@@ -696,7 +837,8 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
         // Copy all
         function copyAll() {
             const data = listingData[currentPlatform];
-            const text = `Title: ${data.title}\n\nKey Features:\n${data.bullet_points.map((bp, i) => `${i + 1}. ${bp}`).join('\n')}\n\nDescription:\n${data.description}\n\nKeywords: ${data.keywords.join(', ')}`;
+            const highlightsText = data.item_highlights ? `\n\nItem Highlights:\n${data.item_highlights}` : '';
+            const text = `Title: ${data.title}${highlightsText}\n\nKey Features:\n${data.bullet_points.map((bp, i) => `${i + 1}. ${bp}`).join('\n')}\n\nDescription:\n${data.description}\n\nKeywords: ${data.keywords.join(', ')}`;
             navigator.clipboard.writeText(text).then(() => {
                 showToast('All content copied!');
                 const btn = document.querySelector('.btn-copy-all');
@@ -710,12 +852,13 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
         // Download as TXT
         function downloadTxt() {
             const data = listingData[currentPlatform];
+            const highlightsBlock = data.item_highlights ? `\nITEM HIGHLIGHTS:\n${data.item_highlights}\n` : '';
             const text = `ListingClick - ${currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1)} Listing
 ${'='.repeat(50)}
 
 TITLE:
 ${data.title}
-
+${highlightsBlock}
 KEY FEATURES:
 ${data.bullet_points.map((bp, i) => `${i + 1}. ${bp}`).join('\n')}
 
@@ -757,8 +900,8 @@ Generated by ListingClick · ${new Date().toLocaleDateString()}
 
         // Regenerate all
         function regenerate() {
-            const input = getInput();
-            if (input) generateListing(input);
+            const inputData = getInputData();
+            if (inputData && (inputData.text || inputData.imageBase64)) generateListing(inputData);
         }
 
         // Start
