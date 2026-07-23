@@ -462,13 +462,13 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             try {
                 console.log('[ListingClick] Starting API call (non-streaming)...');
 
-                // Safety: force-hide loading after 60s even if something goes wrong
+                // Safety: force-hide loading after 180s even if something goes wrong
                 const safetyTimer = setTimeout(() => {
                     console.error('[ListingClick] Safety timeout triggered');
                     document.getElementById('loadingState').style.display = 'none';
-                    document.getElementById('errorMessage').textContent = 'Request took too long. Please try again.';
+                    document.getElementById('errorMessage').textContent = 'Request took too long (180s). Please try again.';
                     document.getElementById('errorState').style.display = 'block';
-                }, 60000);
+                }, 180000);
 
                 const res = await fetch(API_URL, {
                     method: 'POST',
