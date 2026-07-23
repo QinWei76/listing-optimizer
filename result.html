@@ -633,14 +633,30 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 diag('🎉 Success! Rendering results...', '#A0E8AF');
                 renderResults(listingData);
                 
-                // Hide loading state and show results (even if render returned early, user should see something)
+                // Hide loading state and show results
                 clearInterval(diagTimerInterval);
                 document.getElementById('loadingState').style.display = 'none';
+                
+                // Debug: show raw JSON and parsed structure
+                let debugInfo = document.getElementById('debugInfo');
+                if (!debugInfo) {
+                    debugInfo = document.createElement('div');
+                    debugInfo.id = 'debugInfo';
+                    debugInfo.style.cssText = 'background:#1a1a2e;color:#0f0;padding:15px;font-size:12px;font-family:monospace;white-space:pre-wrap;max-height:400px;overflow:auto;border-radius:8px;margin:10px;word-break:break-all;';
+                    document.getElementById('resultsContainer').parentNode.insertBefore(debugInfo, document.getElementById('resultsContainer'));
+                }
+                debugInfo.innerHTML = '<b>🔍 DEBUG - Raw JSON (first 500 chars):</b>\n' + 
+                    (content || '').substring(0, 500) + '\n\n<b>🔍 Parsed keys:</b> ' + 
+                    (listingData ? JSON.stringify(Object.keys(listingData)) : 'null') +
+                    '\n<b>🔍 Platform "' + currentPlatform + '" data keys:</b> ' + 
+                    (listingData && listingData[currentPlatform] ? JSON.stringify(Object.keys(listingData[currentPlatform])) : 'NOT FOUND') +
+                    '\n<b>🔍 Full parsed data:</b>\n' + JSON.stringify(listingData, null, 2).substring(0, 1000);
+                debugInfo.style.display = 'block';
+                
                 if (listingData && listingData[currentPlatform]) {
                     document.getElementById('resultsContainer').style.display = 'block';
                 } else {
-                    // Show error if data structure is wrong
-                    document.getElementById('errorMessage').textContent = 'AI returned unexpected data structure. Please try again.';
+                    document.getElementById('errorMessage').textContent = 'AI returned unexpected data structure. Check debug panel above.';
                     document.getElementById('errorState').style.display = 'block';
                 }
             } catch (err) {
