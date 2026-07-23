@@ -461,9 +461,10 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 console.log('[ListingClick] API_URL:', API_URL);
                 console.log('[ListingClick] MODEL:', MODEL);
                 console.log('[ListingClick] Input text length:', productContext.length);
+                console.log('[ListingClick] Timeout set to 45s');
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 90000);
+                const timeoutId = setTimeout(() => { console.log("[ListingClick] Timeout reached, aborting..."); controller.abort(); }, 45000);
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
@@ -479,6 +480,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
+                console.log("[ListingClick] Response received, timeout cleared");
                 console.log('[ListingClick] API response status:', res.status);
 
                 if (!res.ok) {
@@ -559,14 +561,22 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 
                 renderResults(listingData);
             } catch (err) {
-                console.error('Listing generation error:', err);
+                console.error('[ListingClick] Listing generation error:', err);
+                console.error('[ListingClick] Error name:', err.name);
+                console.error('[ListingClick] Error message:', err.message);
+                
+                // Always hide loading state first
                 document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('errorState').style.display = 'block';
+                
                 let errMsg = err.message || 'Unknown error';
                 if (err.name === 'AbortError') {
-                    errMsg = 'Request timed out (90s). The AI service might be busy. Please try again.';
+                    errMsg = 'Request timed out (45s). The AI service might be busy. Please try again.';
+                } else if (err.message && err.message.includes('Failed to fetch')) {
+                    errMsg = 'Network error. Please check your internet connection and try again.';
                 }
+                
                 document.getElementById('errorMessage').textContent = errMsg;
+                document.getElementById('errorState').style.display = 'block';
             }
         }
 
