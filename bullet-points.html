@@ -323,7 +323,7 @@ async function generateBullets() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer sk-olnalwkcyhvklkblyyjriwzklszndixiwwhggrenynvaqpqk' },
             body: JSON.stringify({
-                model: 'Qwen/Qwen2.5-7B-Instruct',
+                model: 'Qwen/Qwen2.5-14B-Instruct',
                 messages: [
                     { role: 'system', content: SYSTEM_PROMPT },
                     { role: 'user', content: userPrompt }

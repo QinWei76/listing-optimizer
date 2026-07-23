@@ -354,7 +354,7 @@
     <script>
         const API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
         const API_KEY = 'sk-olnalwkcyhvklkblyyjriwzklszndixiwwhggrenynvaqpqk';
-        const MODEL = 'Qwen/Qwen2.5-7B-Instruct';
+        const MODEL = 'Qwen/Qwen2.5-14B-Instruct';
 
         // Platform-specific limits for character counting
         // Amazon: title capped at 75 chars from July 27, 2026; new "Item Highlights" field adds 125 chars
@@ -463,14 +463,17 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 console.log('[ListingClick] Input text length:', productContext.length);
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 60000);
+                const timeoutId = setTimeout(() => controller.abort(), 90000);
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
                     body: JSON.stringify({
                         model: MODEL,
-                        messages: [{ role: 'user', content: textPrompt }],
-                        temperature: 0.7,
+                        messages: [
+                            { role: 'system', content: 'You are a JSON-only API. You MUST return ONLY valid JSON. No markdown code blocks, no explanations, no extra text. Start your response with { and end with }.' },
+                            { role: 'user', content: textPrompt }
+                        ],
+                        temperature: 0.3,
                         max_tokens: 3000
                     }),
                     signal: controller.signal
@@ -492,18 +495,36 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     throw new Error('Empty response from AI');
                 }
 
-                // Parse JSON response
+                // Parse JSON response (multiple fallback strategies)
                 let listingData;
                 try {
-                    // Try direct parse first
                     listingData = JSON.parse(content);
                 } catch {
-                    // Try to extract JSON from markdown code block
-                    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-                    if (jsonMatch) {
-                        listingData = JSON.parse(jsonMatch[1]);
-                    } else {
-                        throw new Error('Failed to parse JSON response');
+                    try {
+                        // Strategy 1: Extract from markdown code block
+                        const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+                        if (jsonMatch) {
+                            listingData = JSON.parse(jsonMatch[1].trim());
+                        }
+                    } catch {}
+                    if (!listingData) {
+                        try {
+                            // Strategy 2: Find first { ... } block (greedy but balanced)
+                            const start = content.indexOf('{');
+                            if (start !== -1) {
+                                let depth = 0, end = start;
+                                for (let i = start; i < content.length; i++) {
+                                    if (content[i] === '{') depth++;
+                                    else if (content[i] === '}') depth--;
+                                    if (depth === 0) { end = i + 1; break; }
+                                }
+                                listingData = JSON.parse(content.substring(start, end));
+                            }
+                        } catch {}
+                    }
+                    if (!listingData) {
+                        console.error('[ListingClick] Raw API content (first 500):', content.substring(0, 500));
+                        throw new Error('Failed to parse AI response as JSON. Try again.');
                     }
                 }
 
@@ -514,7 +535,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 document.getElementById('errorState').style.display = 'block';
                 let errMsg = err.message || 'Unknown error';
                 if (err.name === 'AbortError') {
-                    errMsg = 'Request timed out (60s). The AI service might be busy. Please try again.';
+                    errMsg = 'Request timed out (90s). The AI service might be busy. Please try again.';
                 }
                 document.getElementById('errorMessage').textContent = errMsg;
             }
@@ -546,18 +567,25 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
                     body: JSON.stringify({
                         model: MODEL,
-                        messages: [{ role: 'user', content: prompts[sectionType] }],
-                        temperature: 0.7,
+                        messages: [
+                            { role: 'system', content: 'You are a JSON-only API. Return ONLY valid JSON. No markdown, no explanation.' },
+                            { role: 'user', content: prompts[sectionType] }
+                        ],
+                        temperature: 0.3,
                         max_tokens: 1500
                     })
                 });
 
                 const data = await res.json();
                 let content = data.choices?.[0]?.message?.content || '';
-                const jsonMatch = content.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) throw new Error('Invalid response');
-
-                const parsed = JSON.parse(jsonMatch[0]);
+                let parsed;
+                try {
+                    parsed = JSON.parse(content);
+                } catch {
+                    const jsonMatch = content.match(/\{[\s\S]*\}/);
+                    if (!jsonMatch) throw new Error('Invalid response format');
+                    parsed = JSON.parse(jsonMatch[0]);
+                }
                 listingData[currentPlatform][sectionType] = parsed[sectionType];
                 renderResults();
                 updateScore();
@@ -573,15 +601,36 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             }
         }
 
+        // Normalize listing data - ensure all expected fields exist
+        function normalizeListingData(data) {
+            if (!data) return data;
+            const platforms = ['amazon', 'shopify', 'etsy'];
+            for (const p of platforms) {
+                if (!data[p]) data[p] = {};
+                const d = data[p];
+                if (typeof d.title !== 'string') d.title = d.title ? String(d.title) : '';
+                if (!Array.isArray(d.bullet_points)) {
+                    d.bullet_points = d.bullet_points ? String(d.bullet_points).split('\n').filter(Boolean) : [];
+                }
+                if (typeof d.description !== 'string') d.description = d.description ? String(d.description) : '';
+                if (!Array.isArray(d.keywords)) {
+                    d.keywords = d.keywords ? String(d.keywords).split(',').map(k => k.trim()).filter(Boolean) : [];
+                }
+            }
+            return data;
+        }
+
         // Render results for current platform
         function renderResults() {
             if (!listingData || !listingData[currentPlatform]) return;
+            // Normalize data before rendering
+            listingData = normalizeListingData(listingData);
             const data = listingData[currentPlatform];
             const limits = PLATFORM_LIMITS[currentPlatform];
             const container = document.getElementById('resultSections');
 
             // Character counts
-            const titleLen = data.title.length;
+            const titleLen = (data.title || '').length;
             const highlightsLen = (data.item_highlights || '').length;
             const bulletsLen = data.bullet_points.join('\n').length;
             const descLen = data.description.length;
