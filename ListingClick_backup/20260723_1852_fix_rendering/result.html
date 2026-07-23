@@ -533,116 +533,73 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     throw new Error('Empty response from AI');
                 }
 
-                diag('🔍 Parsing JSON... (' + content.length + ' chars)', '#FFD93D');
+                diag('🔍 Parsing JSON...', '#FFD93D');
 
+                // Parse JSON response with improved robustness
                 let listingData;
+                let parseError = null;
+                
+                // Clean content: remove BOM, zero-width chars, normalize whitespace
+                let cleanContent = content.replace(/^\uFEFF/, '')
+                    .replace(/[\u200B\u200C\u200D\u2060]/g, '')
+                    .trim();
+                
+                // Strategy 1: Direct parse
                 try {
-                    let cleanContent = content.replace(/^\uFEFF/, '')
-                        .replace(/[\u200B\u200C\u200D\u2060]/g, '')
-                        .trim();
-                    diag('📝 Content cleaned (' + cleanContent.length + ' chars)', '#FFD93D');
-
-                    // Strategy 1: Direct parse
-                    try {
-                        listingData = JSON.parse(cleanContent);
-                        diag('✅ Strategy 1: direct parse', '#A0E8AF');
-                    } catch (e) {
-                        diag('⚠️ Strategy 1 failed: ' + e.message, '#FFD93D');
-                    }
-
-                    // Strategy 2: Extract from markdown code block
-                    if (!listingData) {
-                        const jsonMatch = cleanContent.match(/```(?:json)?\s*([\s\S]*?)```/);
-                        if (jsonMatch) {
-                            try {
-                                listingData = JSON.parse(jsonMatch[1].trim());
-                                diag('✅ Strategy 2: markdown block', '#A0E8AF');
-                            } catch (e) { diag('⚠️ Strategy 2 failed: ' + e.message, '#FFD93D'); }
-                        } else {
-                            diag('⚠️ Strategy 2: no markdown block', '#FFD93D');
-                        }
-                    }
-
-                    // Strategy 3: Find balanced { ... } block
-                    if (!listingData) {
-                        const start = cleanContent.indexOf('{');
-                        const lastEnd = cleanContent.lastIndexOf('}');
-                        if (start !== -1 && lastEnd > start) {
-                            try {
-                                listingData = JSON.parse(cleanContent.substring(start, lastEnd + 1));
-                                diag('✅ Strategy 3: brace match', '#A0E8AF');
-                            } catch (e) { diag('⚠️ Strategy 3 failed: ' + e.message, '#FFD93D'); }
-                        } else {
-                            diag('⚠️ Strategy 3: no braces found', '#FFD93D');
-                        }
-                    }
-
-                    // Strategy 4: Fix common JSON issues
-                    if (!listingData) {
-                        let fixedContent = cleanContent
-                            .replace(/,\s*}/g, '}')
-                            .replace(/,\s*]/g, ']')
-                            .replace(/'/g, '"');
-                        try {
-                            listingData = JSON.parse(fixedContent);
-                            diag('✅ Strategy 4: fixed JSON', '#A0E8AF');
-                        } catch (e) {
-                            diag('⚠️ Strategy 4 failed: ' + e.message, '#FFD93D');
-                            diag('📋 Content preview: ' + cleanContent.substring(0, 300), '#FF6B6B');
-                        }
-                    }
-                } catch (fatalErr) {
-                    diag('💥 Fatal parse error: ' + fatalErr.message, '#FF6B6B');
+                    listingData = JSON.parse(cleanContent);
+                } catch (e) {
+                    parseError = e;
                 }
-
+                
+                // Strategy 2: Extract from markdown code block
                 if (!listingData) {
-                    diag('❌ All 4 strategies failed', '#FF6B6B');
-                    throw new Error('AI returned invalid JSON. Please try again.');
+                    const jsonMatch = cleanContent.match(/```(?:json)?\s*([\s\S]*?)```/);
+                    if (jsonMatch) {
+                        try {
+                            listingData = JSON.parse(jsonMatch[1].trim());
+                        } catch (e) {
+                            parseError = e;
+                        }
+                    }
                 }
-
-                // Unwrap: AI sometimes wraps data in an extra layer like {"listing": {"amazon":...}}
-                // or {"data": {"amazon":...}}. Extract the platform-level object.
-                if (listingData && !listingData[currentPlatform]) {
-                    const keys = Object.keys(listingData);
-                    diag('🔧 Unwrapping JSON wrapper (keys: ' + keys.join(',') + ')', '#FFD93D');
-                    // Try common wrapper keys first
-                    for (const wrapKey of ['listing', 'data', 'result', 'response', 'output', 'content', 'listings']) {
-                        if (listingData[wrapKey] && listingData[wrapKey][currentPlatform]) {
-                            listingData = listingData[wrapKey];
-                            diag('✅ Unwrapped via key "' + wrapKey + '"', '#A0E8AF');
-                            break;
+                
+                // Strategy 3: Find balanced { ... } block
+                if (!listingData) {
+                    const start = cleanContent.indexOf('{');
+                    const lastEnd = cleanContent.lastIndexOf('}');
+                    if (start !== -1 && lastEnd > start) {
+                        try {
+                            listingData = JSON.parse(cleanContent.substring(start, lastEnd + 1));
+                        } catch (e) {
+                            parseError = e;
                         }
                     }
-                    // If still not matched, try the first value that looks like a platform object
-                    if (!listingData[currentPlatform]) {
-                        for (const key of keys) {
-                            const val = listingData[key];
-                            if (val && typeof val === 'object' && !Array.isArray(val) && (val.amazon || val.shopify || val.etsy)) {
-                                listingData = val;
-                                diag('✅ Unwrapped via nested platform object (key: "' + key + '")', '#A0E8AF');
-                                break;
-                            }
-                        }
+                }
+                
+                // Strategy 4: Try to fix common JSON issues
+                if (!listingData) {
+                    let fixedContent = cleanContent
+                        .replace(/,\s*}/g, '}')  // Remove trailing commas
+                        .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
+                        .replace(/'/g, '"');       // Replace single quotes with double quotes
+                    
+                    try {
+                        listingData = JSON.parse(fixedContent);
+                    } catch (e) {
+                        parseError = e;
                     }
-                    // Last resort: if the parsed object itself has amazon/shopify/etsy at top level but nested deeper
-                    if (!listingData[currentPlatform]) {
-                        diag('⚠️ Could not find platform data. Keys: ' + keys.join(','), '#FF6B6B');
-                    }
+                }
+                
+                if (!listingData) {
+                    console.error('[ListingClick] Raw API content:', content);
+                    console.error('[ListingClick] Clean content:', cleanContent);
+                    console.error('[ListingClick] Last parse error:', parseError);
+                    diag('❌ JSON parse failed', '#FF6B6B');
+                    throw new Error('AI returned invalid JSON. Please try again.');
                 }
 
                 diag('🎉 Success! Rendering results...', '#A0E8AF');
                 renderResults(listingData);
-                
-                // Hide loading state and show results (even if render returned early, user should see something)
-                clearInterval(diagTimerInterval);
-                document.getElementById('loadingState').style.display = 'none';
-                if (listingData && listingData[currentPlatform]) {
-                    document.getElementById('resultsContainer').style.display = 'block';
-                } else {
-                    // Show error if data structure is wrong
-                    document.getElementById('errorMessage').textContent = 'AI returned unexpected data structure. Please try again.';
-                    document.getElementById('errorState').style.display = 'block';
-                }
             } catch (err) {
                 console.error('[ListingClick] Listing generation error:', err);
                 console.error('[ListingClick] Error name:', err.name);
