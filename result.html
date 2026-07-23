@@ -457,6 +457,8 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 }`;
 
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
@@ -465,10 +467,19 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                         messages: [{ role: 'user', content: textPrompt }],
                         temperature: 0.7,
                         max_tokens: 3000
-                    })
+                    }),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
+
+                if (!res.ok) {
+                    throw new Error(`API returned ${res.status}: ${res.statusText}`);
+                }
 
                 const data = await res.json();
+                if (data.error) {
+                    throw new Error(data.error.message || data.error.code || 'API error');
+                }
                 const content = data.choices?.[0]?.message?.content || '';
 
                 if (!content) {
@@ -495,7 +506,11 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 console.error('Listing generation error:', err);
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('errorState').style.display = 'block';
-                document.getElementById('errorMessage').textContent = `Error: ${err.message}. Please try again.`;
+                let errMsg = err.message || 'Unknown error';
+                if (err.name === 'AbortError') {
+                    errMsg = 'Request timed out (60s). The AI service might be busy. Please try again.';
+                }
+                document.getElementById('errorMessage').textContent = `Error: ${errMsg}`;
             }
         }
 
