@@ -1023,12 +1023,13 @@ Return the information as a concise, well-organized paragraph that can be used a
                             ]
                         }],
                         temperature: 0.3,
-                        max_tokens: 1000
+                        max_tokens: 3000
                     })
                 });
 
                 const data = await res.json();
-                const content = data.choices?.[0]?.message?.content || '';
+                const msg = data.choices?.[0]?.message || {};
+                const content = msg.content || msg.reasoning_content || '';
 
                 if (content) {
                     imageAnalysisResult = content.trim();
