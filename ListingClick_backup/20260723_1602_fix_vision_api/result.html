@@ -376,8 +376,7 @@
                     const data = JSON.parse(raw);
                     return {
                         text: data.text || '',
-                        // imageBase64 is no longer passed from index (image analysis happens there)
-                        // Keep for backward compat but we won't use it for API calls
+                        imageBase64: data.imageBase64 || null,
                         url: data.url || null,
                         isProductUrl: data.isProductUrl || false
                     };
@@ -387,9 +386,9 @@
             // Fallback to legacy format
             const params = new URLSearchParams(window.location.search);
             const fromUrl = params.get('input');
-            if (fromUrl) return { text: decodeURIComponent(fromUrl), url: null, isProductUrl: false };
+            if (fromUrl) return { text: decodeURIComponent(fromUrl), imageBase64: null, url: null, isProductUrl: false };
             const legacy = localStorage.getItem('listing_input');
-            if (legacy) return { text: legacy, url: null, isProductUrl: false };
+            if (legacy) return { text: legacy, imageBase64: null, url: null, isProductUrl: false };
             return null;
         }
 
@@ -401,7 +400,7 @@
         // Initialize
         async function init() {
             const inputData = getInputData();
-            if (!inputData || !inputData.text) {
+            if (!inputData || (!inputData.text && !inputData.imageBase64)) {
                 window.location.href = 'index.html';
                 return;
             }
@@ -411,16 +410,19 @@
             if (inputData.url) {
                 summaryText = inputData.url + (inputData.text ? '\n' + inputData.text : '');
             }
+            if (inputData.imageBase64 && inputData.text) {
+                summaryText = '[Image] ' + inputData.text;
+            }
             document.getElementById('inputSummaryText').textContent = summaryText.length > 200 ? summaryText.substring(0, 200) + '...' : summaryText;
 
             await generateListing(inputData);
         }
 
-        // Call AI to generate listing (text only - image analysis happens on index.html)
+        // Call AI to generate listing (supports text + image input)
         async function generateListing(inputData) {
             // Normalize: if string passed, convert to object
             if (typeof inputData === 'string') {
-                inputData = { text: inputData, url: null, isProductUrl: false };
+                inputData = { text: inputData, imageBase64: null, url: null, isProductUrl: false };
             }
 
             document.getElementById('loadingState').style.display = 'flex';
@@ -438,7 +440,7 @@
 
             const textPrompt = `You are an expert e-commerce listing optimizer. Generate optimized product listings for three platforms: Amazon, Shopify, and Etsy.
 
-Product information: ${productContext || 'A generic product'}
+Product information: ${productContext || '[Analyze the provided product image to determine product details]'}
 
 ${inputData.url ? 'Note: This is a product page URL. Use your knowledge to generate listings based on the URL context and product information.' : ''}
 
@@ -456,53 +458,68 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
   "etsy": {"title": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]}
 }`;
 
+            // Build message content (with or without image)
+            let messageContent;
+            if (inputData.imageBase64) {
+                messageContent = [
+                    { type: 'text', text: textPrompt + '\n\nAlso analyze this product image for additional context:' },
+                    { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + inputData.imageBase64 } }
+                ];
+            } else {
+                messageContent = textPrompt;
+            }
+
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
                     body: JSON.stringify({
                         model: MODEL,
-                        messages: [{ role: 'user', content: textPrompt }],
+                        messages: [{ role: 'user', content: messageContent }],
                         temperature: 0.7,
                         max_tokens: 3000
                     })
                 });
 
                 const data = await res.json();
-                const content = data.choices?.[0]?.message?.content || '';
+                let content = data.choices?.[0]?.message?.content || '';
 
-                if (!content) {
-                    throw new Error('Empty response from AI');
+                // If deepseek-chat doesn't support vision, try deepseek-v4-flash
+                if (!content && inputData.imageBase64) {
+                    const res2 = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+                        body: JSON.stringify({
+                            model: 'deepseek-v4-flash',
+                            messages: [{ role: 'user', content: messageContent }],
+                            temperature: 0.7,
+                            max_tokens: 3000
+                        })
+                    });
+                    const data2 = await res2.json();
+                    content = data2.choices?.[0]?.message?.content || '';
                 }
 
-                // Parse JSON response
-                let listingData;
-                try {
-                    // Try direct parse first
-                    listingData = JSON.parse(content);
-                } catch {
-                    // Try to extract JSON from markdown code block
-                    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-                    if (jsonMatch) {
-                        listingData = JSON.parse(jsonMatch[1]);
-                    } else {
-                        throw new Error('Failed to parse JSON response');
-                    }
-                }
+                const jsonMatch = content.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error('Invalid response format');
 
-                renderResults(listingData);
-            } catch (err) {
-                console.error('Listing generation error:', err);
+                listingData = JSON.parse(jsonMatch[0]);
+
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'block';
+                renderResults();
+                updateScore();
+            } catch (e) {
+                console.error('Generation error:', e);
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('errorState').style.display = 'block';
-                document.getElementById('errorMessage').textContent = `Error: ${err.message}. Please try again.`;
             }
         }
 
         // Regenerate a single section
         async function regenerateSection(sectionType) {
             const inputData = getInputData();
-            if ((!inputData || !inputData.text) || !listingData) return;
+            if ((!inputData || (!inputData.text && !inputData.imageBase64)) || !listingData) return;
             const input = inputData.text || '';
 
             const btn = document.querySelector(`[data-regen="${sectionType}"]`);
@@ -884,7 +901,7 @@ Generated by ListingClick · ${new Date().toLocaleDateString()}
         // Regenerate all
         function regenerate() {
             const inputData = getInputData();
-            if (inputData && inputData.text) generateListing(inputData);
+            if (inputData && (inputData.text || inputData.imageBase64)) generateListing(inputData);
         }
 
         // Start

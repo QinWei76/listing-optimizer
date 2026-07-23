@@ -678,15 +678,9 @@
 
     <script>
         // === Config ===
-        // Vision API: OpenRouter free vision models (DeepSeek API does NOT support multimodal)
-        const VISION_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-        const VISION_API_KEY = 'sk-or-v1-your-key-here'; // Replace with OpenRouter API key (free signup at openrouter.ai)
-        const VISION_MODEL = 'google/gemini-2.0-flash-exp:free';
-        const VISION_MODEL_FALLBACK = 'meta-llama/llama-3.2-90b-vision-instruct';
-        // Text API (for listing generation)
-        const TEXT_API_URL = 'https://api.deepseek.com/chat/completions';
-        const TEXT_API_KEY = 'sk-23d562237724474fbf489b29843043a6';
-        const TEXT_MODEL = 'deepseek-chat';
+        const API_URL = 'https://api.deepseek.com/chat/completions';
+        const API_KEY = 'sk-23d562237724474fbf489b29843043a6';
+        const MODEL = 'deepseek-chat';
 
         // === DOM refs ===
         const inputContainer = document.getElementById('inputContainer');
@@ -803,49 +797,29 @@
             dragOverlay.classList.remove('visible');
             inputWrapper.classList.remove('drag-over');
 
-            // CRITICAL: Always prevent default to stop browser from navigating to file
-            // Check items first for proper file handling
             const items = e.dataTransfer.items;
-            let handled = false;
-
             if (items) {
-                // First pass: look for image files
                 for (let i = 0; i < items.length; i++) {
-                    if (items[i].kind === 'file') {
+                    if (items[i].kind === 'file' && items[i].type.startsWith('image/')) {
                         const file = items[i].getAsFile();
-                        if (file && file.type.startsWith('image/')) {
-                            handleImageFile(file);
-                            handled = true;
-                            break;
-                        }
+                        if (file) handleImageFile(file);
+                        return;
                     }
-                }
-
-                // Second pass: look for URLs in text items (only if no image found)
-                if (!handled) {
-                    for (let i = 0; i < items.length; i++) {
-                        if (items[i].kind === 'string') {
-                            try {
-                                const text = e.dataTransfer.getData('text/plain');
-                                if (text && URL_REGEX.test(text)) {
-                                    handleUrlDrop(text);
-                                    handled = true;
-                                    break;
-                                }
-                            } catch (err) {
-                                // getData may fail for some types
-                            }
+                    // Handle URL drops
+                    if (items[i].kind === 'string') {
+                        const text = e.dataTransfer.getData('text/plain');
+                        if (text && URL_REGEX.test(text)) {
+                            handleUrlDrop(text);
+                            return;
                         }
                     }
                 }
             }
-
-            // Fallback: check files array directly
-            if (!handled && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            // Fallback: check files
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                 const file = e.dataTransfer.files[0];
                 if (file.type.startsWith('image/')) {
                     handleImageFile(file);
-                    handled = true;
                 }
             }
         });
@@ -964,12 +938,26 @@
             });
         }
 
-        // Analyze product image via AI (using OpenRouter free vision models)
+        // Analyze product image via AI
         async function analyzeProductImage(base64) {
             isAnalyzing = true;
             generateBtn.disabled = true;
 
-            const visionPrompt = `You are a product identification expert for e-commerce. Analyze this product image and extract ALL visible information that would help create a product listing. Include:
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + API_KEY
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [{
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: `You are a product identification expert for e-commerce. Analyze this product image and extract ALL visible information that would help create a product listing. Include:
 
 1. Product name/type (what is it?)
 2. Brand (if visible on product or packaging)
@@ -981,23 +969,8 @@
 8. Category (e.g., electronics, clothing, home & kitchen, etc.)
 9. Any text visible on the product or packaging
 
-Return the information as a concise, well-organized paragraph that can be used as product context for generating an e-commerce listing. Focus on factual, observable details.`;
-
-            try {
-                const res = await fetch(VISION_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + VISION_API_KEY,
-                        'HTTP-Referer': window.location.origin,
-                        'X-Title': 'ListingClick'
-                    },
-                    body: JSON.stringify({
-                        model: VISION_MODEL,
-                        messages: [{
-                            role: 'user',
-                            content: [
-                                { type: 'text', text: visionPrompt },
+Return the information as a concise, well-organized paragraph that can be used as product context for generating an e-commerce listing. Focus on factual, observable details.`
+                                },
                                 {
                                     type: 'image_url',
                                     image_url: {
@@ -1019,35 +992,37 @@ Return the information as a concise, well-organized paragraph that can be used a
                     imagePreviewStatus.textContent = 'Product recognized ✓';
                     imagePreviewStatus.className = 'image-preview-status done';
 
+                    // Pre-fill the textarea with the analysis
                     const currentText = inputBox.value.trim();
                     if (!currentText) {
                         inputBox.value = imageAnalysisResult;
                     } else if (!currentText.includes(imageAnalysisResult.substring(0, 50))) {
+                        // Append if not already there
                         inputBox.value = currentText + '\n\n[Image Analysis]\n' + imageAnalysisResult;
                     }
-                    showToast('Product image recognized successfully!');
                 } else {
-                    throw new Error('Empty response from vision model');
+                    throw new Error('Empty response');
                 }
             } catch (err) {
-                console.error('Primary vision model error:', err);
+                console.error('Image analysis error:', err);
 
-                // Try fallback model
+                // Try alternative model for vision
                 try {
-                    const res2 = await fetch(VISION_API_URL, {
+                    const res2 = await fetch(API_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + VISION_API_KEY,
-                            'HTTP-Referer': window.location.origin,
-                            'X-Title': 'ListingClick'
+                            'Authorization': 'Bearer ' + API_KEY
                         },
                         body: JSON.stringify({
-                            model: VISION_MODEL_FALLBACK,
+                            model: 'deepseek-v4-flash',
                             messages: [{
                                 role: 'user',
                                 content: [
-                                    { type: 'text', text: visionPrompt },
+                                    {
+                                        type: 'text',
+                                        text: `You are a product identification expert for e-commerce. Analyze this product image and extract ALL visible information. Include: product name/type, brand, key features, materials, colors, size, target audience, category, any visible text. Return as a concise paragraph.`
+                                    },
                                     {
                                         type: 'image_url',
                                         image_url: {
@@ -1080,8 +1055,9 @@ Return the information as a concise, well-organized paragraph that can be used a
                     }
                 } catch (err2) {
                     console.error('Fallback vision error:', err2);
-                    imagePreviewStatus.textContent = 'Vision API error - please describe manually';
+                    imagePreviewStatus.textContent = 'Image uploaded (analysis unavailable)';
                     imagePreviewStatus.className = 'image-preview-status error';
+                    // Still keep the image, user can describe manually
                     imageAnalysisResult = null;
                 }
             }
@@ -1117,17 +1093,14 @@ Return the information as a concise, well-organized paragraph that can be used a
             }
 
             // Build the data to pass to result page
-            // Note: We only pass TEXT data - image analysis already happened on this page
-            // Passing base64 images through localStorage is unreliable (size limits)
             let dataToPass = {};
 
             if (input) {
                 dataToPass.text = input;
             }
 
-            // If image was uploaded but analysis failed, note it
-            if (uploadedImageBase64 && !imageAnalysisResult) {
-                dataToPass.text = (input || '') + '\n\n[Note: Image was uploaded but AI analysis failed. Please add product description manually.]';
+            if (uploadedImageBase64) {
+                dataToPass.imageBase64 = uploadedImageBase64;
             }
 
             if (detectedUrl) {
@@ -1135,9 +1108,18 @@ Return the information as a concise, well-organized paragraph that can be used a
                 dataToPass.isProductUrl = detectedUrl.isProduct;
             }
 
-            // Store in localStorage (text only, no base64 - keeps it small and reliable)
-            localStorage.setItem('listing_input_data', JSON.stringify(dataToPass));
-            localStorage.setItem('listing_input', input || '[Image]');
+            // Store in localStorage (base64 can be large, but localStorage allows ~5-10MB)
+            try {
+                localStorage.setItem('listing_input_data', JSON.stringify(dataToPass));
+                // Also set legacy key for backward compatibility
+                localStorage.setItem('listing_input', input || '[Image]');
+            } catch (e) {
+                // If localStorage is full, try without image
+                console.warn('localStorage full, trying without image data');
+                dataToPass.imageBase64 = null;
+                localStorage.setItem('listing_input_data', JSON.stringify(dataToPass));
+                localStorage.setItem('listing_input', input || '[Image]');
+            }
 
             window.location.href = 'result.html';
         });
@@ -1155,22 +1137,6 @@ Return the information as a concise, well-organized paragraph that can be used a
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
-        }
-
-        // Toast notification
-        function showToast(msg, duration) {
-            duration = duration || 3000;
-            let toast = document.getElementById('toast');
-            if (!toast) {
-                toast = document.createElement('div');
-                toast.id = 'toast';
-                toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1A1D26;color:#FFF;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:500;z-index:1000;opacity:0;transition:opacity 0.3s;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
-                document.body.appendChild(toast);
-            }
-            toast.textContent = msg;
-            toast.style.opacity = '1';
-            clearTimeout(toast._timer);
-            toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, duration);
         }
     </script>
 
