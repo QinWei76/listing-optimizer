@@ -286,7 +286,7 @@
         <div class="error-state" id="errorState" style="display:none;">
             <div class="error-icon">⚠️</div>
             <div class="error-title">Something went wrong</div>
-            <div class="error-desc">We couldn't generate your listing. Please try again.</div>
+            <div class="error-desc" id="errorMessage">We couldn't generate your listing. Please try again.</div>
             <button class="btn-retry" onclick="regenerate()">Try Again</button>
         </div>
 
@@ -457,6 +457,11 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 }`;
 
             try {
+                console.log('[ListingClick] Starting API call...');
+                console.log('[ListingClick] API_URL:', API_URL);
+                console.log('[ListingClick] MODEL:', MODEL);
+                console.log('[ListingClick] Input text length:', productContext.length);
+
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 60000);
                 const res = await fetch(API_URL, {
@@ -471,6 +476,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
+                console.log('[ListingClick] API response status:', res.status);
 
                 if (!res.ok) {
                     throw new Error(`API returned ${res.status}: ${res.statusText}`);
@@ -510,7 +516,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 if (err.name === 'AbortError') {
                     errMsg = 'Request timed out (60s). The AI service might be busy. Please try again.';
                 }
-                document.getElementById('errorMessage').textContent = `Error: ${errMsg}`;
+                document.getElementById('errorMessage').textContent = errMsg;
             }
         }
 
