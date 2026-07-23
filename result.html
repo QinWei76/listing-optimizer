@@ -535,7 +535,6 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 
                 diag('🔍 Parsing JSON... (' + content.length + ' chars)', '#FFD93D');
 
-                let listingData;
                 try {
                     let cleanContent = content.replace(/^\uFEFF/, '')
                         .replace(/[\u200B\u200C\u200D\u2060]/g, '')
@@ -631,7 +630,8 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 }
 
                 diag('🎉 Success! Rendering results...', '#A0E8AF');
-                renderResults(listingData);
+                renderResults();
+                updateScore();
                 
                 // Hide loading state and show results
                 clearInterval(diagTimerInterval);
