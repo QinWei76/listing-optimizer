@@ -314,11 +314,11 @@ async function generateTitles() {
     var userPrompt = 'Product: ' + productName + '\nKey Features: ' + features + '\nTarget Keywords: ' + keywords + '\nTarget Language: ' + LANG_MAP[lang] + '\nPlease generate 3 optimized title variations with character counts and relevance scores.';
 
     try {
-        var response = await fetch('https://api.deepseek.com/chat/completions', {
+        var response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer sk-23d562237724474fbf489b29843043a6' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer sk-olnalwkcyhvklkblyyjriwzklszndixiwwhggrenynvaqpqk' },
             body: JSON.stringify({
-                model: 'deepseek-chat',
+                model: 'Qwen/Qwen2.5-7B-Instruct',
                 messages: [
                     { role: 'system', content: SYSTEM_PROMPT },
                     { role: 'user', content: userPrompt }
