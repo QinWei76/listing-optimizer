@@ -314,11 +314,11 @@ async function generateTitles() {
     var userPrompt = 'Product: ' + productName + '\nKey Features: ' + features + '\nTarget Keywords: ' + keywords + '\nTarget Language: ' + LANG_MAP[lang] + '\nPlease generate 3 optimized title variations with character counts and relevance scores.';
 
     try {
-        var response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+        var response = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer sk-olnalwkcyhvklkblyyjriwzklszndixiwwhggrenynvaqpqk' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer a5e0b9754c8d4e2095789395e8095b7f.FlbLSFBabstZEMxV' },
             body: JSON.stringify({
-                model: 'Qwen/Qwen2.5-14B-Instruct',
+                model: 'glm-4-flash',
                 messages: [
                     { role: 'system', content: SYSTEM_PROMPT },
                     { role: 'user', content: userPrompt }
