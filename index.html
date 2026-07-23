@@ -678,11 +678,10 @@
 
     <script>
         // === Config ===
-        // Vision API: OpenRouter free vision models (DeepSeek API does NOT support multimodal)
-        const VISION_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-        const VISION_API_KEY = 'sk-or-v1-your-key-here'; // Replace with OpenRouter API key (free signup at openrouter.ai)
-        const VISION_MODEL = 'google/gemini-2.0-flash-exp:free';
-        const VISION_MODEL_FALLBACK = 'meta-llama/llama-3.2-90b-vision-instruct';
+        // Vision API: SiliconFlow free vision model (DeepSeek API does NOT support multimodal)
+        const VISION_API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+        const VISION_API_KEY = 'sk-sf-your-key-here'; // Replace with SiliconFlow API key (free signup at cloud.siliconflow.cn)
+        const VISION_MODEL = 'Qwen/Qwen2.5-VL-7B-Instruct';
         // Text API (for listing generation)
         const TEXT_API_URL = 'https://api.deepseek.com/chat/completions';
         const TEXT_API_KEY = 'sk-23d562237724474fbf489b29843043a6';
@@ -964,7 +963,7 @@
             });
         }
 
-        // Analyze product image via AI (using OpenRouter free vision models)
+        // Analyze product image via AI (using SiliconFlow free vision model)
         async function analyzeProductImage(base64) {
             isAnalyzing = true;
             generateBtn.disabled = true;
@@ -988,9 +987,7 @@ Return the information as a concise, well-organized paragraph that can be used a
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + VISION_API_KEY,
-                        'HTTP-Referer': window.location.origin,
-                        'X-Title': 'ListingClick'
+                        'Authorization': 'Bearer ' + VISION_API_KEY
                     },
                     body: JSON.stringify({
                         model: VISION_MODEL,
@@ -1027,61 +1024,13 @@ Return the information as a concise, well-organized paragraph that can be used a
                     }
                     showToast('Product image recognized successfully!');
                 } else {
-                    throw new Error('Empty response from vision model');
+                    const errMsg = data.error?.message || 'Empty response from vision model';
+                    throw new Error(errMsg);
                 }
             } catch (err) {
-                console.error('Primary vision model error:', err);
-
-                // Try fallback model
-                try {
-                    const res2 = await fetch(VISION_API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + VISION_API_KEY,
-                            'HTTP-Referer': window.location.origin,
-                            'X-Title': 'ListingClick'
-                        },
-                        body: JSON.stringify({
-                            model: VISION_MODEL_FALLBACK,
-                            messages: [{
-                                role: 'user',
-                                content: [
-                                    { type: 'text', text: visionPrompt },
-                                    {
-                                        type: 'image_url',
-                                        image_url: {
-                                            url: 'data:image/jpeg;base64,' + base64
-                                        }
-                                    }
-                                ]
-                            }],
-                            temperature: 0.3,
-                            max_tokens: 1000
-                        })
-                    });
-
-                    const data2 = await res2.json();
-                    const content2 = data2.choices?.[0]?.message?.content || '';
-
-                    if (content2) {
-                        imageAnalysisResult = content2.trim();
-                        imagePreviewStatus.textContent = 'Product recognized ✓';
-                        imagePreviewStatus.className = 'image-preview-status done';
-
-                        const currentText = inputBox.value.trim();
-                        if (!currentText) {
-                            inputBox.value = imageAnalysisResult;
-                        } else if (!currentText.includes(imageAnalysisResult.substring(0, 50))) {
-                            inputBox.value = currentText + '\n\n[Image Analysis]\n' + imageAnalysisResult;
-                        }
-                    } else {
-                        throw new Error('Empty response from fallback model');
-                    }
-                } catch (err2) {
-                    console.error('Fallback vision error:', err2);
-                    imagePreviewStatus.textContent = 'Vision API error - please describe manually';
-                    imagePreviewStatus.className = 'image-preview-status error';
+                console.error('Vision API error:', err);
+                imagePreviewStatus.textContent = 'Vision API error - please describe manually';
+                imagePreviewStatus.className = 'image-preview-status error';
                     imageAnalysisResult = null;
                 }
             }
