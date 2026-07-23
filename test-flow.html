@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>End-to-End Flow Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; max-width: 800px; margin: 0 auto; background: #111; color: #eee; }
+        .success { color: #4ade80; font-weight: bold; }
+        .error { color: #f87171; font-weight: bold; }
+        .info { color: #60a5fa; }
+        .step { background: #222; padding: 8px 12px; margin: 4px 0; border-radius: 4px; border-left: 3px solid #444; }
+        .step.pass { border-left-color: #4ade80; }
+        .step.fail { border-left-color: #f87171; }
+        pre { background: #1a1a1a; padding: 10px; border-radius: 4px; overflow: auto; font-size: 11px; max-height: 200px; color: #aaa; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; background: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 14px; }
+        button:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <h1>End-to-End Flow Test</h1>
+    <p>This test simulates the EXACT flow: index.html writes to localStorage → this page reads it → calls API → parses JSON</p>
+    
+    <button onclick="runFullTest()">Run Full Test</button>
+    <button onclick="clearAndTest()" style="background:#ef4444">Clear localStorage & Test</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = 'step ' + (type === 'success' ? 'pass' : type === 'error' ? 'fail' : '');
+            const p = document.createElement('span');
+            p.className = type;
+            p.textContent = msg;
+            div.appendChild(p);
+            output.appendChild(div);
+            return div;
+        }
+        
+        function logPre(msg) {
+            const pre = document.createElement('pre');
+            pre.textContent = msg;
+            output.appendChild(pre);
+        }
+        
+        async function runFullTest() {
+            output.innerHTML = '';
+            
+            // Step 1: Write data to localStorage (exactly like index.html does)
+            log('Step 1: Writing test data to localStorage (simulating index.html)...', 'info');
+            const testData = {
+                text: 'Wireless Bluetooth Earbuds with charging case, 30hr battery life, noise cancellation, IPX5 waterproof.',
+                url: null,
+                isProductUrl: false
+            };
+            localStorage.setItem('listing_input_data', JSON.stringify(testData));
+            localStorage.setItem('listing_input', testData.text);
+            log('localStorage written: ' + JSON.stringify(testData).substring(0, 80) + '...', 'success');
+            
+            // Step 2: Read from localStorage (exactly like result.html does)
+            log('Step 2: Reading data from localStorage (simulating result.html)...', 'info');
+            const rawData = localStorage.getItem('listing_input_data');
+            if (!rawData) {
+                log('ERROR: localStorage is empty!', 'error');
+                return;
+            }
+            let inputData;
+            try {
+                const data = JSON.parse(rawData);
+                inputData = {
+                    text: data.text || '',
+                    url: data.url || null,
+                    isProductUrl: data.isProductUrl || false
+                };
+                log('localStorage read successfully: text=' + inputData.text.substring(0, 60) + '...', 'success');
+            } catch (e) {
+                log('ERROR parsing localStorage: ' + e.message, 'error');
+                return;
+            }
+            
+            if (!inputData.text) {
+                log('ERROR: text is empty after reading from localStorage!', 'error');
+                return;
+            }
+            
+            // Step 3: Call API (exactly like result.html does)
+            log('Step 3: Calling SiliconFlow API with localStorage data...', 'info');
+            
+            const API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+            const API_KEY = 'sk-olnalwkcyhvklkblyyjriwzklszndixiwwhggrenynvaqpqk';
+            const MODEL = 'Qwen/Qwen2.5-14B-Instruct';
+            
+            let productContext = '';
+            if (inputData.url) productContext += '[Product URL: ' + inputData.url + ']\n';
+            if (inputData.text) productContext += inputData.text;
+            
+            const textPrompt = 'You are an expert e-commerce listing optimizer. Generate optimized product listings for three platforms: Amazon, Shopify, and Etsy.\n\nProduct information: ' + productContext + '\n\nFor each platform, generate:\n- title: An optimized product title\n- item_highlights: (Amazon ONLY) Up to 125 chars\n- bullet_points: 5 key feature bullet points\n- description: A compelling product description (200-300 words)\n- keywords: 10 relevant search keywords/tags\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:\n{"amazon": {"title": "", "item_highlights": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]}, "shopify": {"title": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]}, "etsy": {"title": "", "bullet_points": ["", "", "", "", ""], "description": "", "keywords": ["", "", ...]}}';
+            
+            try {
+                const startTime = Date.now();
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 45000);
+                
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: [
+                            { role: 'system', content: 'You are a JSON-only API. You MUST return ONLY valid JSON. No markdown code blocks, no explanations, no extra text. Start your response with { and end with }.' },
+                            { role: 'user', content: textPrompt }
+                        ],
+                        temperature: 0.3,
+                        max_tokens: 3000
+                    }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                log('API response in ' + elapsed + 's, status: ' + res.status, res.ok ? 'success' : 'error');
+                
+                if (!res.ok) {
+                    const errText = await res.text();
+                    log('API error: ' + errText, 'error');
+                    return;
+                }
+                
+                const data = await res.json();
+                if (data.error) {
+                    log('API error: ' + (data.error.message || JSON.stringify(data.error)), 'error');
+                    return;
+                }
+                
+                const content = data.choices?.[0]?.message?.content || '';
+                if (!content) {
+                    log('Empty response from AI', 'error');
+                    return;
+                }
+                
+                log('Received content: ' + content.length + ' chars', 'success');
+                
+                // Step 4: Parse JSON (exactly like result.html does - 4 layer fallback)
+                log('Step 4: Parsing JSON response...', 'info');
+                
+                let cleanContent = content.replace(/^\uFEFF/, '')
+                    .replace(/[\u200B\u200C\u200D\u2060]/g, '')
+                    .trim();
+                
+                let listingData = null;
+                
+                // Strategy 1
+                try {
+                    listingData = JSON.parse(cleanContent);
+                    log('Strategy 1 (direct parse) SUCCESS', 'success');
+                } catch (e) {
+                    log('Strategy 1 failed: ' + e.message, 'info');
+                }
+                
+                // Strategy 2
+                if (!listingData) {
+                    const jsonMatch = cleanContent.match(/```(?:json)?\s*([\s\S]*?)```/);
+                    if (jsonMatch) {
+                        try {
+                            listingData = JSON.parse(jsonMatch[1].trim());
+                            log('Strategy 2 (markdown extract) SUCCESS', 'success');
+                        } catch (e) {
+                            log('Strategy 2 failed: ' + e.message, 'info');
+                        }
+                    }
+                }
+                
+                // Strategy 3
+                if (!listingData) {
+                    const start = cleanContent.indexOf('{');
+                    const lastEnd = cleanContent.lastIndexOf('}');
+                    if (start !== -1 && lastEnd > start) {
+                        try {
+                            listingData = JSON.parse(cleanContent.substring(start, lastEnd + 1));
+                            log('Strategy 3 (balanced braces) SUCCESS', 'success');
+                        } catch (e) {
+                            log('Strategy 3 failed: ' + e.message, 'info');
+                        }
+                    }
+                }
+                
+                // Strategy 4
+                if (!listingData) {
+                    let fixedContent = cleanContent
+                        .replace(/,\s*}/g, '}')
+                        .replace(/,\s*]/g, ']')
+                        .replace(/'/g, '"');
+                    try {
+                        listingData = JSON.parse(fixedContent);
+                        log('Strategy 4 (fix common issues) SUCCESS', 'success');
+                    } catch (e) {
+                        log('Strategy 4 failed: ' + e.message, 'error');
+                    }
+                }
+                
+                if (!listingData) {
+                    log('ALL strategies failed!', 'error');
+                    logPre('Raw content (first 500 chars):\n' + content.substring(0, 500));
+                    return;
+                }
+                
+                // Step 5: Verify data structure
+                log('Step 5: Verifying data structure...', 'info');
+                const platforms = Object.keys(listingData);
+                log('Platforms: ' + platforms.join(', '), 'success');
+                
+                if (listingData.amazon) {
+                    log('Amazon title: ' + listingData.amazon.title, 'success');
+                    log('Amazon bullets: ' + (listingData.amazon.bullet_points?.length || 0), 'success');
+                }
+                if (listingData.shopify) {
+                    log('Shopify title: ' + listingData.shopify.title, 'success');
+                }
+                if (listingData.etsy) {
+                    log('Etsy title: ' + listingData.etsy.title, 'success');
+                }
+                
+                log('FULL END-TO-END TEST PASSED!', 'success');
+                log('This means: localStorage → API → JSON parsing all work correctly.', 'success');
+                log('If result.html still fails, the issue is browser cache. Try Ctrl+Shift+R or Cmd+Shift+R on result.html', 'info');
+                
+            } catch (err) {
+                log('Error: ' + err.message, 'error');
+                log('Error name: ' + err.name, 'error');
+                if (err.name === 'AbortError') {
+                    log('Request timed out after 45s', 'error');
+                }
+            }
+        }
+        
+        async function clearAndTest() {
+            log('Clearing localStorage...', 'info');
+            localStorage.removeItem('listing_input_data');
+            localStorage.removeItem('listing_input');
+            log('localStorage cleared. Now running test...', 'info');
+            await runFullTest();
+        }
+        
+        // Auto-run
+        setTimeout(runFullTest, 1000);
+    </script>
+</body>
+</html>

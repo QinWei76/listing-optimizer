@@ -1087,7 +1087,7 @@ Return the information as a concise, well-organized paragraph that can be used a
             localStorage.setItem('listing_input_data', JSON.stringify(dataToPass));
             localStorage.setItem('listing_input', input || '[Image]');
 
-            window.location.href = 'result.html';
+            window.location.href = 'result.html?v=' + Date.now();
         });
 
         // === Also handle Enter key ===
