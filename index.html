@@ -1049,7 +1049,8 @@ Return the information as a concise, well-organized paragraph that can be used a
                 }
             } catch (err) {
                 console.error('Vision API error:', err);
-                imagePreviewStatus.textContent = 'Vision API error - please describe manually';
+                const errorMsg = err.message || String(err);
+                imagePreviewStatus.textContent = 'Vision error: ' + errorMsg;
                 imagePreviewStatus.className = 'image-preview-status error';
                 imageAnalysisResult = null;
             }
