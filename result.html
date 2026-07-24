@@ -446,6 +446,8 @@
 
             const textPrompt = `You are an expert e-commerce listing optimizer. Generate optimized product listings for three platforms: Amazon, Shopify, and Etsy.
 
+CRITICAL: ALL output MUST be in English. No Chinese, no other non-English characters. Even if the product information is in another language, translate and output everything in English.
+
 Product information: ${productContext || 'A generic product'}
 
 ${inputData.url ? 'Note: This is a product page URL. Use your knowledge to generate listings based on the URL context and product information.' : ''}
@@ -481,7 +483,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     body: JSON.stringify({
                         model: MODEL,
                         messages: [
-                            { role: 'system', content: 'You are a JSON-only API. You MUST return ONLY valid JSON. No markdown code blocks, no explanations, no extra text. Start your response with { and end with }.' },
+                            { role: 'system', content: 'You are a JSON-only API. You MUST return ONLY valid JSON. No markdown code blocks, no explanations, no extra text. Start your response with { and end with }. ALL content must be in English only.' },
                             { role: 'user', content: textPrompt }
                         ],
                         temperature: 0.3,

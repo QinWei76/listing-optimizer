@@ -989,6 +989,8 @@
 
             const visionPrompt = `You are an expert at identifying products for e-commerce listings. Carefully analyze this image and identify EXACTLY what this product is.
 
+CRITICAL: You MUST respond ENTIRELY in English. Do NOT use any Chinese or other non-English characters.
+
 IMPORTANT: Pay close attention to the product's SHAPE, STRUCTURE, and FUNCTION. Don't confuse similar-looking items. For example:
 - A weighted vest is NOT a backpack or hydration pack
 - A resistance band is NOT a rope
@@ -999,7 +1001,7 @@ Step 2 - BRAND: Read any text, logos, or brand names visible on the product or p
 Step 3 - FEATURES: List specific visible features (colors, materials, design elements, size indicators, buckles, straps, etc.)
 Step 4 - USE CASE: Who is this product for? What activities or situations is it designed for?
 
-Return your analysis as a clear, structured description. Start with the product name/type and brand, then list key features. Be precise and factual - only describe what you can actually see.`;
+Return your analysis as a clear, structured description. Start with the product name/type and brand, then list key features. Be precise and factual - only describe what you can actually see. Remember: ALL output must be in English.`;
 
             try {
                 const res = await fetch(VISION_API_URL, {
