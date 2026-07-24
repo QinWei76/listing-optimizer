@@ -1051,7 +1051,7 @@ Return your analysis as a clear, structured description. Start with the product 
                     } else if (!currentText.includes(imageAnalysisResult.substring(0, 50))) {
                         inputBox.value = currentText + '\n\n[Image Analysis]\n' + imageAnalysisResult;
                     }
-                    showToast('Image recognized! Please review and edit the text if needed before generating.');
+                    showToast('Image recognized! Some product categories may have recognition errors. Please review and add more details if needed.');
                 } else {
                     const errMsg = data.error?.message || 'Empty response from vision model';
                     throw new Error(errMsg);
