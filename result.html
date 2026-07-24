@@ -262,11 +262,11 @@
             <img src="logo.png" alt="Logo" class="nav-logo">
         </a>
         <div class="nav-right">
-            <button class="lang-switch">
+            <button class="lang-switch" id="langBtn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                English
+                <span data-i18n="langBtnLabel">English</span>
             </button>
-            <a href="#" class="nav-login">Sign In</a>
+            <a href="#" class="nav-login" data-i18n="navLogin">Sign In</a>
         </div>
     </nav>
 
@@ -278,31 +278,31 @@
         <!-- Loading state -->
         <div class="loading-state" id="loadingState">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Generating your listing...</div>
-            <div class="loading-sub" id="loadingSub">Optimizing for Amazon, Shopify & Etsy</div>
+            <div class="loading-text" data-i18n="loadingText">Generating your listing...</div>
+            <div class="loading-sub" id="loadingSub" data-i18n="loadingSub">Optimizing for Amazon, Shopify & Etsy</div>
             <pre id="streamingPreview" style="display:none;text-align:left;max-width:500px;margin:16px auto 0;padding:16px;background:rgba(255,255,255,0.08);border-radius:12px;font-size:12px;line-height:1.6;color:rgba(255,255,255,0.7);max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;font-family:monospace;"></pre>
         </div>
 
         <!-- Error state -->
         <div class="error-state" id="errorState" style="display:none;">
             <div class="error-icon">⚠️</div>
-            <div class="error-title">Something went wrong</div>
-            <div class="error-desc" id="errorMessage">We couldn't generate your listing. Please try again.</div>
-            <button class="btn-retry" onclick="regenerate()">Try Again</button>
+            <div class="error-title" data-i18n="errorTitle">Something went wrong</div>
+            <div class="error-desc" id="errorMessage" data-i18n="errorDesc">We couldn't generate your listing. Please try again.</div>
+            <button class="btn-retry" onclick="regenerate()" data-i18n="btnRetry">Try Again</button>
         </div>
 
         <!-- Results -->
         <div id="resultsContainer" style="display:none;">
             <!-- Input summary -->
             <div class="input-summary">
-                <div class="input-summary-label">Your Input</div>
+                <div class="input-summary-label" data-i18n="yourInput">Your Input</div>
                 <div class="input-summary-text" id="inputSummaryText"></div>
-                <a href="index.html" class="input-summary-edit">← Edit & regenerate</a>
+                <a href="index.html" class="input-summary-edit" data-i18n="editRegenerate">← Edit & regenerate</a>
             </div>
 
             <!-- Score bar -->
             <div class="score-bar" id="scoreBar">
-                <span class="score-label">Listing Score</span>
+                <span class="score-label" data-i18n="listingScore">Listing Score</span>
                 <div class="score-track"><div class="score-fill" id="scoreFill" style="width:0%"></div></div>
                 <span class="score-value" id="scoreValue">--</span>
                 <div class="score-details" id="scoreDetails"></div>
@@ -318,7 +318,7 @@
             <!-- Edit hint -->
             <div class="edit-hint">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Click any text to edit · Changes are kept until you leave
+                <span data-i18n="editHint">Click any text to edit · Changes are kept until you leave</span>
             </div>
 
             <!-- Result sections -->
@@ -328,15 +328,15 @@
             <div class="copy-all-bar">
                 <button class="btn-copy-all" onclick="copyAll()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                    Copy All
+                    <span data-i18n="copyAll">Copy All</span>
                 </button>
                 <button class="btn-download" onclick="downloadTxt()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Download .txt
+                    <span data-i18n="downloadTxt">Download .txt</span>
                 </button>
                 <a href="index.html" class="btn-regenerate">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                    New Listing
+                    <span data-i18n="newListing">New Listing</span>
                 </a>
             </div>
         </div>
@@ -344,15 +344,163 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <p class="footer-copy">© 2026 ListingClick. All rights reserved.</p>
+        <p class="footer-copy" data-i18n="footerCopy">© 2026 ListingClick. All rights reserved.</p>
         <div class="footer-links">
-            <a href="#">Terms</a>
-            <a href="#">Privacy</a>
-            <a href="#">Contact</a>
+            <a href="#" data-i18n="footerTerms">Terms</a>
+            <a href="#" data-i18n="footerPrivacy">Privacy</a>
+            <a href="#" data-i18n="footerContact">Contact</a>
         </div>
     </footer>
 
     <script>
+        // === i18n System ===
+        const i18n = {
+            en: {
+                langBtnLabel: 'English',
+                navLogin: 'Sign In',
+                loadingText: 'Generating your listing...',
+                loadingSub: 'Optimizing for Amazon, Shopify & Etsy',
+                parsingText: 'Parsing results...',
+                errorTitle: 'Something went wrong',
+                errorDesc: 'We couldn\'t generate your listing. Please try again.',
+                errorTimeout: 'Request took too long. Please try again.',
+                errorNetwork: 'Network error. Please check your internet connection and try again.',
+                errorTimeoutAbort: 'Request timed out. The AI service might be busy. Please try again.',
+                errorInvalidJSON: 'AI returned invalid JSON. Please try again.',
+                errorUnexpectedFormat: 'AI returned unexpected data format. Please try again.',
+                btnRetry: 'Try Again',
+                yourInput: 'Your Input',
+                editRegenerate: '← Edit & regenerate',
+                listingScore: 'Listing Score',
+                editHint: 'Click any text to edit · Changes are kept until you leave',
+                sectionTitle: 'Title',
+                sectionHighlights: 'Item Highlights',
+                sectionKeyFeatures: 'Key Features',
+                sectionDescription: 'Description',
+                sectionKeywords: 'Keywords',
+                chars: 'chars',
+                actionRetry: 'Retry',
+                actionCopy: 'Copy',
+                actionCopied: 'Copied!',
+                copyAll: 'Copy All',
+                downloadTxt: 'Download .txt',
+                newListing: 'New Listing',
+                toastSectionRegen: 'Section regenerated!',
+                toastFailedRegen: 'Failed to regenerate. Please try again.',
+                toastCopied: 'Copied to clipboard!',
+                toastAllCopied: 'All content copied!',
+                toastDownloaded: 'Downloaded!',
+                footerCopy: '© 2026 ListingClick. All rights reserved.',
+                footerTerms: 'Terms',
+                footerPrivacy: 'Privacy',
+                footerContact: 'Contact',
+                // Download file labels
+                dlListing: 'Listing',
+                dlTitle: 'TITLE',
+                dlItemHighlights: 'ITEM HIGHLIGHTS',
+                dlKeyFeatures: 'KEY FEATURES',
+                dlDescription: 'DESCRIPTION',
+                dlKeywords: 'KEYWORDS',
+                dlGeneratedBy: 'Generated by ListingClick'
+            },
+            zh: {
+                langBtnLabel: '中文',
+                navLogin: '登录',
+                loadingText: '正在生成商品列表...',
+                loadingSub: '正在为 Amazon、Shopify 和 Etsy 优化',
+                parsingText: '解析结果中...',
+                errorTitle: '出错了',
+                errorDesc: '无法生成商品列表，请重试。',
+                errorTimeout: '请求超时，请重试。',
+                errorNetwork: '网络错误，请检查网络连接后重试。',
+                errorTimeoutAbort: '请求超时，AI 服务可能繁忙，请重试。',
+                errorInvalidJSON: 'AI 返回了无效的 JSON，请重试。',
+                errorUnexpectedFormat: 'AI 返回了意外的数据格式，请重试。',
+                btnRetry: '重试',
+                yourInput: '你的输入',
+                editRegenerate: '← 编辑并重新生成',
+                listingScore: '列表评分',
+                editHint: '点击任意文字编辑 · 离开页面前修改会保留',
+                sectionTitle: '标题',
+                sectionHighlights: '商品亮点',
+                sectionKeyFeatures: '关键特性',
+                sectionDescription: '描述',
+                sectionKeywords: '关键词',
+                chars: '字符',
+                actionRetry: '重试',
+                actionCopy: '复制',
+                actionCopied: '已复制！',
+                copyAll: '全部复制',
+                downloadTxt: '下载 .txt',
+                newListing: '新建列表',
+                toastSectionRegen: '段落已重新生成！',
+                toastFailedRegen: '重新生成失败，请重试。',
+                toastCopied: '已复制到剪贴板！',
+                toastAllCopied: '全部内容已复制！',
+                toastDownloaded: '已下载！',
+                footerCopy: '© 2026 ListingClick 保留所有权利。',
+                footerTerms: '条款',
+                footerPrivacy: '隐私',
+                footerContact: '联系',
+                // Download file labels
+                dlListing: '列表',
+                dlTitle: '标题',
+                dlItemHighlights: '商品亮点',
+                dlKeyFeatures: '关键特性',
+                dlDescription: '描述',
+                dlKeywords: '关键词',
+                dlGeneratedBy: '由 ListingClick 生成'
+            }
+        };
+
+        let currentLang = localStorage.getItem('listing_ui_lang') || 'en';
+
+        function t(key) {
+            return (i18n[currentLang] && i18n[currentLang][key]) || (i18n.en[key]) || key;
+        }
+
+        function applyI18n() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const text = t(key);
+                if (text !== undefined) {
+                    el.innerHTML = text;
+                }
+            });
+            document.documentElement.lang = currentLang;
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            localStorage.setItem('listing_ui_lang', currentLang);
+            applyI18n();
+            // Re-render results if they exist (to update section titles, button labels etc.)
+            if (listingData && listingData[currentPlatform]) {
+                renderResults();
+                updateScore();
+            }
+        }
+
+        // Language switch button handler
+        document.getElementById('langBtn').addEventListener('click', toggleLang);
+
+        // === Output Language ===
+        // Map output language display names to English names for AI prompt
+        const OUTPUT_LANG_MAP = {
+            'English': 'English',
+            'Deutsch': 'German',
+            'Français': 'French',
+            'Español': 'Spanish',
+            'Italiano': 'Italian',
+            '日本語': 'Japanese'
+        };
+
+        function getOutputLang() {
+            const saved = localStorage.getItem('listing_output_lang') || 'English';
+            return OUTPUT_LANG_MAP[saved] || 'English';
+        }
+
+        // === API Config ===
         const API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
         const API_KEY = 'a5e0b9754c8d4e2095789395e8095b7f.FlbLSFBabstZEMxV';
         const MODEL = 'glm-4-flash';
@@ -377,8 +525,6 @@
                     const data = JSON.parse(raw);
                     return {
                         text: data.text || '',
-                        // imageBase64 is no longer passed from index (image analysis happens there)
-                        // Keep for backward compat but we won't use it for API calls
                         url: data.url || null,
                         isProductUrl: data.isProductUrl || false
                     };
@@ -428,7 +574,7 @@
             document.getElementById('loadingState').style.display = 'flex';
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('errorState').style.display = 'none';
-            document.getElementById('loadingSub').textContent = 'Optimizing for Amazon, Shopify & Etsy';
+            document.getElementById('loadingSub').textContent = t('loadingSub');
 
             // Show streaming preview
             const preview = document.getElementById('streamingPreview');
@@ -444,9 +590,15 @@
                 productContext += inputData.text;
             }
 
+            // Build output language instruction
+            const outputLang = getOutputLang();
+            const langInstruction = outputLang === 'English'
+                ? 'CRITICAL: ALL output MUST be in English. No Chinese, no other non-English characters. Even if the product information is in another language, translate and output everything in English.'
+                : `CRITICAL: ALL output MUST be in ${outputLang}. Even if the product information is in another language, translate and output everything in ${outputLang}.`;
+
             const textPrompt = `You are an expert e-commerce listing optimizer. Generate optimized product listings for three platforms: Amazon, Shopify, and Etsy.
 
-CRITICAL: ALL output MUST be in English. No Chinese, no other non-English characters. Even if the product information is in another language, translate and output everything in English.
+${langInstruction}
 
 Product information: ${productContext || 'A generic product'}
 
@@ -473,9 +625,14 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 const safetyTimer = setTimeout(() => {
                     console.error('[ListingClick] Safety timeout triggered');
                     document.getElementById('loadingState').style.display = 'none';
-                    document.getElementById('errorMessage').textContent = 'Request took too long. Please try again.';
+                    document.getElementById('errorMessage').textContent = t('errorTimeout');
                     document.getElementById('errorState').style.display = 'block';
                 }, 120000);
+
+                // Build system prompt with output language
+                const systemLangInstruction = outputLang === 'English'
+                    ? 'You are a JSON-only API. You MUST return ONLY valid JSON. No markdown code blocks, no explanations, no extra text. Start your response with { and end with }. ALL content must be in English only.'
+                    : `You are a JSON-only API. You MUST return ONLY valid JSON. No markdown code blocks, no explanations, no extra text. Start your response with { and end with }. ALL content must be in ${outputLang} only.`;
 
                 const res = await fetch(API_URL, {
                     method: 'POST',
@@ -483,7 +640,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                     body: JSON.stringify({
                         model: MODEL,
                         messages: [
-                            { role: 'system', content: 'You are a JSON-only API. You MUST return ONLY valid JSON. No markdown code blocks, no explanations, no extra text. Start your response with { and end with }. ALL content must be in English only.' },
+                            { role: 'system', content: systemLangInstruction },
                             { role: 'user', content: textPrompt }
                         ],
                         temperature: 0.3,
@@ -546,7 +703,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
 
                 // Hide preview, show loading briefly while parsing
                 preview.style.display = 'none';
-                document.getElementById('loadingSub').textContent = 'Parsing results...';
+                document.getElementById('loadingSub').textContent = t('parsingText');
 
                 try {
                     let cleanContent = fullContent.replace(/^\uFEFF/, '')
@@ -566,9 +723,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                             try {
                                 listingData = JSON.parse(jsonMatch[1].trim());
                             } catch (e) {
-                            // Strategy 2 failed
-                        }
-                        } else {
+                            }
                         }
                     }
 
@@ -580,9 +735,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                             try {
                                 listingData = JSON.parse(cleanContent.substring(start, lastEnd + 1));
                             } catch (e) {
-                            // Strategy 3 failed
-                        }
-                        } else {
+                            }
                         }
                     }
 
@@ -602,7 +755,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 }
 
                 if (!listingData) {
-                    throw new Error('AI returned invalid JSON. Please try again.');
+                    throw new Error(t('errorInvalidJSON'));
                 }
 
                 // Unwrap: AI sometimes wraps data in an extra layer like {"listing": {"amazon":...}}
@@ -634,7 +787,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 if (listingData && listingData[currentPlatform]) {
                     document.getElementById('resultsContainer').style.display = 'block';
                 } else {
-                    document.getElementById('errorMessage').textContent = 'AI returned unexpected data format. Please try again.';
+                    document.getElementById('errorMessage').textContent = t('errorUnexpectedFormat');
                     document.getElementById('errorState').style.display = 'block';
                 }
             } catch (err) {
@@ -644,9 +797,9 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 
                 let errMsg = err.message || 'Unknown error';
                 if (err.name === 'AbortError') {
-                    errMsg = 'Request timed out. The AI service might be busy. Please try again.';
+                    errMsg = t('errorTimeoutAbort');
                 } else if (err.message && err.message.includes('Failed to fetch')) {
-                    errMsg = 'Network error. Please check your internet connection and try again.';
+                    errMsg = t('errorNetwork');
                 }
                 
                 document.getElementById('errorMessage').textContent = errMsg;
@@ -666,12 +819,18 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 0.8s linear infinite"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> ...';
             }
 
+            // Build output language instruction
+            const outputLang = getOutputLang();
+            const langInstruction = outputLang === 'English'
+                ? 'Output must be in English.'
+                : `Output must be in ${outputLang}.`;
+
             const prompts = {
-                title: `Generate a single optimized product title for ${currentPlatform}. Product: ${input}. Amazon: concise keyword-rich STRICT 75 chars max. Shopify: clean branded 70 chars max. Etsy: SEO-optimized 140 chars max. Return ONLY a JSON object: {"title": "..."}`,
-                highlights: `Generate item highlights for Amazon (supplement to title). Product: ${input}. Max 125 chars. Include materials, use cases, key specs that complement the title. Return ONLY a JSON object: {"item_highlights": "..."}`,
-                bullets: `Generate exactly 5 key feature bullet points for ${currentPlatform}. Product: ${input}. Return ONLY a JSON object: {"bullet_points": ["...", "...", "...", "...", "..."]}`,
-                description: `Generate a compelling product description (200-300 words) for ${currentPlatform}. Product: ${input}. Return ONLY a JSON object: {"description": "..."}`,
-                keywords: `Generate exactly 10 relevant search keywords/tags for ${currentPlatform}. Product: ${input}. Return ONLY a JSON object: {"keywords": ["...", ...]}`
+                title: `Generate a single optimized product title for ${currentPlatform}. Product: ${input}. ${langInstruction} Amazon: concise keyword-rich STRICT 75 chars max. Shopify: clean branded 70 chars max. Etsy: SEO-optimized 140 chars max. Return ONLY a JSON object: {"title": "..."}`,
+                highlights: `Generate item highlights for Amazon (supplement to title). Product: ${input}. ${langInstruction} Max 125 chars. Include materials, use cases, key specs that complement the title. Return ONLY a JSON object: {"item_highlights": "..."}`,
+                bullets: `Generate exactly 5 key feature bullet points for ${currentPlatform}. Product: ${input}. ${langInstruction} Return ONLY a JSON object: {"bullet_points": ["...", "...", "...", "...", "..."]}`,
+                description: `Generate a compelling product description (200-300 words) for ${currentPlatform}. Product: ${input}. ${langInstruction} Return ONLY a JSON object: {"description": "..."}`,
+                keywords: `Generate exactly 10 relevant search keywords/tags for ${currentPlatform}. Product: ${input}. ${langInstruction} Return ONLY a JSON object: {"keywords": ["...", ...]}`
             };
 
             try {
@@ -702,15 +861,15 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 listingData[currentPlatform][sectionType] = parsed[sectionType];
                 renderResults();
                 updateScore();
-                showToast('Section regenerated!');
+                showToast(t('toastSectionRegen'));
             } catch (e) {
                 console.error('Section regen error:', e);
-                showToast('Failed to regenerate. Please try again.');
+                showToast(t('toastFailedRegen'));
             }
 
             if (btn) {
                 btn.classList.remove('regenerating');
-                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Retry';
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> ' + t('actionRetry');
             }
         }
 
@@ -749,21 +908,22 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             const descLen = data.description.length;
             const kwLen = data.keywords.join(', ').length;
             const hasHighlights = data.item_highlights !== undefined;
+            const charsUnit = t('chars');
 
             // Build highlights section HTML (Amazon only)
             const highlightsHTML = hasHighlights ? `
                 <div class="result-section">
                     <div class="result-section-header">
                         <div class="result-section-left">
-                            <span class="result-section-title">Item Highlights</span>
+                            <span class="result-section-title">${t('sectionHighlights')}</span>
                             <span class="char-count ${getCountClass(highlightsLen, limits.highlights || 125)}">${highlightsLen}/${limits.highlights || 125}</span>
                         </div>
                         <div class="result-section-actions">
                             <button class="btn-action" data-regen="highlights" onclick="regenerateSection('item_highlights')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                                Retry
+                                ${t('actionRetry')}
                             </button>
-                            <button class="btn-action" onclick="copySection('highlights', this)">Copy</button>
+                            <button class="btn-action" onclick="copySection('highlights', this)">${t('actionCopy')}</button>
                         </div>
                     </div>
                     <div class="result-content highlights-content" contenteditable="true" data-field="item_highlights" oninput="onContentEdit(this)">${escapeHtml(data.item_highlights)}</div>
@@ -774,15 +934,15 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 <div class="result-section">
                     <div class="result-section-header">
                         <div class="result-section-left">
-                            <span class="result-section-title">Title</span>
+                            <span class="result-section-title">${t('sectionTitle')}</span>
                             <span class="char-count ${getCountClass(titleLen, limits.title)}">${titleLen}/${limits.title}</span>
                         </div>
                         <div class="result-section-actions">
                             <button class="btn-action" data-regen="title" onclick="regenerateSection('title')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                                Retry
+                                ${t('actionRetry')}
                             </button>
-                            <button class="btn-action" onclick="copySection('title', this)">Copy</button>
+                            <button class="btn-action" onclick="copySection('title', this)">${t('actionCopy')}</button>
                         </div>
                     </div>
                     <div class="result-content title-content" contenteditable="true" data-field="title" oninput="onContentEdit(this)">${escapeHtml(data.title)}</div>
@@ -793,15 +953,15 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 <div class="result-section">
                     <div class="result-section-header">
                         <div class="result-section-left">
-                            <span class="result-section-title">Key Features</span>
-                            <span class="char-count ${getCountClass(bulletsLen, limits.bullets)}">${bulletsLen} chars</span>
+                            <span class="result-section-title">${t('sectionKeyFeatures')}</span>
+                            <span class="char-count ${getCountClass(bulletsLen, limits.bullets)}">${bulletsLen} ${charsUnit}</span>
                         </div>
                         <div class="result-section-actions">
                             <button class="btn-action" data-regen="bullets" onclick="regenerateSection('bullet_points')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                                Retry
+                                ${t('actionRetry')}
                             </button>
-                            <button class="btn-action" onclick="copySection('bullets', this)">Copy</button>
+                            <button class="btn-action" onclick="copySection('bullets', this)">${t('actionCopy')}</button>
                         </div>
                     </div>
                     <ul class="result-content bullets-content">
@@ -812,15 +972,15 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 <div class="result-section">
                     <div class="result-section-header">
                         <div class="result-section-left">
-                            <span class="result-section-title">Description</span>
-                            <span class="char-count ${getCountClass(descLen, limits.description)}">${descLen} chars</span>
+                            <span class="result-section-title">${t('sectionDescription')}</span>
+                            <span class="char-count ${getCountClass(descLen, limits.description)}">${descLen} ${charsUnit}</span>
                         </div>
                         <div class="result-section-actions">
                             <button class="btn-action" data-regen="description" onclick="regenerateSection('description')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                                Retry
+                                ${t('actionRetry')}
                             </button>
-                            <button class="btn-action" onclick="copySection('description', this)">Copy</button>
+                            <button class="btn-action" onclick="copySection('description', this)">${t('actionCopy')}</button>
                         </div>
                     </div>
                     <div class="result-content" contenteditable="true" data-field="description" oninput="onContentEdit(this)">${escapeHtml(data.description)}</div>
@@ -829,15 +989,15 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 <div class="result-section">
                     <div class="result-section-header">
                         <div class="result-section-left">
-                            <span class="result-section-title">Keywords</span>
-                            <span class="char-count ${getCountClass(kwLen, limits.keywords)}">${kwLen} chars</span>
+                            <span class="result-section-title">${t('sectionKeywords')}</span>
+                            <span class="char-count ${getCountClass(kwLen, limits.keywords)}">${kwLen} ${charsUnit}</span>
                         </div>
                         <div class="result-section-actions">
                             <button class="btn-action" data-regen="keywords" onclick="regenerateSection('keywords')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                                Retry
+                                ${t('actionRetry')}
                             </button>
-                            <button class="btn-action" onclick="copySection('keywords', this)">Copy</button>
+                            <button class="btn-action" onclick="copySection('keywords', this)">${t('actionCopy')}</button>
                         </div>
                     </div>
                     <div class="result-content keywords-content">
@@ -873,6 +1033,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             const data = listingData[currentPlatform];
             const limits = PLATFORM_LIMITS[currentPlatform];
             const hasHighlights = data.item_highlights !== undefined;
+            const charsUnit = t('chars');
 
             // Build counts array dynamically
             const counts = [
@@ -890,7 +1051,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             const badges = document.querySelectorAll('.char-count');
             counts.forEach((c, i) => {
                 if (badges[i]) {
-                    const label = c.showLimit ? `${c.val}/${c.limit}` : `${c.val} chars`;
+                    const label = c.showLimit ? `${c.val}/${c.limit}` : `${c.val} ${charsUnit}`;
                     badges[i].textContent = label;
                     badges[i].className = 'char-count ' + getCountClass(c.val, c.limit);
                 }
@@ -919,50 +1080,50 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
                 const titleRatio = data.title.length / limits.title;
                 const titleScore = Math.min(25, Math.round(titleRatio > 0.4 && titleRatio <= 1 ? 25 : titleRatio > 1 ? 15 : titleRatio * 25));
                 score += titleScore;
-                details.push(`Title ${titleScore}/25`);
+                details.push(`${t('sectionTitle')} ${titleScore}/25`);
 
                 const hlLen = (data.item_highlights || '').length;
                 const hlLimit = limits.highlights || 125;
                 const hlRatio = hlLen / hlLimit;
                 const hlScore = Math.min(15, Math.round(hlRatio > 0.3 && hlRatio <= 1 ? 15 : hlRatio > 1 ? 8 : hlRatio * 15));
                 score += hlScore;
-                details.push(`Highlights ${hlScore}/15`);
+                details.push(`${t('sectionHighlights')} ${hlScore}/15`);
 
                 const bulletsCount = data.bullet_points.length;
                 const bulletsScore = Math.min(25, Math.round((bulletsCount / 5) * 25));
                 score += bulletsScore;
-                details.push(`Features ${bulletsScore}/25`);
+                details.push(`${t('sectionKeyFeatures')} ${bulletsScore}/25`);
 
                 const descWords = data.description.split(/\s+/).length;
                 const descScore = descWords >= 150 && descWords <= 350 ? 20 : descWords >= 100 ? 15 : descWords >= 50 ? 10 : 5;
                 score += descScore;
-                details.push(`Description ${descScore}/20`);
+                details.push(`${t('sectionDescription')} ${descScore}/20`);
 
                 const kwCount = data.keywords.length;
                 const kwScore = Math.min(15, Math.round((kwCount / 10) * 15));
                 score += kwScore;
-                details.push(`Keywords ${kwScore}/15`);
+                details.push(`${t('sectionKeywords')} ${kwScore}/15`);
             } else {
                 // Standard scoring: Title 30 + Features 25 + Description 25 + Keywords 20 = 100
                 const titleRatio = data.title.length / limits.title;
                 const titleScore = Math.min(30, Math.round(titleRatio > 0.3 && titleRatio <= 1 ? 30 : titleRatio > 1 ? 20 : titleRatio * 30));
                 score += titleScore;
-                details.push(`Title ${titleScore}/30`);
+                details.push(`${t('sectionTitle')} ${titleScore}/30`);
 
                 const bulletsCount = data.bullet_points.length;
                 const bulletsScore = Math.min(25, Math.round((bulletsCount / 5) * 25));
                 score += bulletsScore;
-                details.push(`Features ${bulletsScore}/25`);
+                details.push(`${t('sectionKeyFeatures')} ${bulletsScore}/25`);
 
                 const descWords = data.description.split(/\s+/).length;
                 const descScore = descWords >= 150 && descWords <= 350 ? 25 : descWords >= 100 ? 20 : descWords >= 50 ? 15 : 10;
                 score += descScore;
-                details.push(`Description ${descScore}/25`);
+                details.push(`${t('sectionDescription')} ${descScore}/25`);
 
                 const kwCount = data.keywords.length;
                 const kwScore = Math.min(20, Math.round((kwCount / 10) * 20));
                 score += kwScore;
-                details.push(`Keywords ${kwScore}/20`);
+                details.push(`${t('sectionKeywords')} ${kwScore}/20`);
             }
 
             document.getElementById('scoreFill').style.width = score + '%';
@@ -993,24 +1154,24 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             else if (type === 'keywords') text = data.keywords.join(', ');
 
             navigator.clipboard.writeText(text).then(() => {
-                btn.textContent = 'Copied!';
+                btn.textContent = t('actionCopied');
                 btn.classList.add('copied');
-                showToast('Copied to clipboard!');
-                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+                showToast(t('toastCopied'));
+                setTimeout(() => { btn.textContent = t('actionCopy'); btn.classList.remove('copied'); }, 2000);
             });
         }
 
         // Copy all
         function copyAll() {
             const data = listingData[currentPlatform];
-            const highlightsText = data.item_highlights ? `\n\nItem Highlights:\n${data.item_highlights}` : '';
-            const text = `Title: ${data.title}${highlightsText}\n\nKey Features:\n${data.bullet_points.map((bp, i) => `${i + 1}. ${bp}`).join('\n')}\n\nDescription:\n${data.description}\n\nKeywords: ${data.keywords.join(', ')}`;
+            const highlightsText = data.item_highlights ? `\n\n${t('sectionHighlights')}:\n${data.item_highlights}` : '';
+            const text = `${t('sectionTitle')}: ${data.title}${highlightsText}\n\n${t('sectionKeyFeatures')}:\n${data.bullet_points.map((bp, i) => `${i + 1}. ${bp}`).join('\n')}\n\n${t('sectionDescription')}:\n${data.description}\n\n${t('sectionKeywords')}: ${data.keywords.join(', ')}`;
             navigator.clipboard.writeText(text).then(() => {
-                showToast('All content copied!');
+                showToast(t('toastAllCopied'));
                 const btn = document.querySelector('.btn-copy-all');
-                btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
+                btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> ' + t('actionCopied');
                 setTimeout(() => {
-                    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy All';
+                    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> ' + t('copyAll');
                 }, 2000);
             });
         }
@@ -1018,24 +1179,24 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
         // Download as TXT
         function downloadTxt() {
             const data = listingData[currentPlatform];
-            const highlightsBlock = data.item_highlights ? `\nITEM HIGHLIGHTS:\n${data.item_highlights}\n` : '';
-            const text = `ListingClick - ${currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1)} Listing
+            const highlightsBlock = data.item_highlights ? `\n${t('dlItemHighlights')}:\n${data.item_highlights}\n` : '';
+            const text = `ListingClick - ${currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1)} ${t('dlListing')}
 ${'='.repeat(50)}
 
-TITLE:
+${t('dlTitle')}:
 ${data.title}
 ${highlightsBlock}
-KEY FEATURES:
+${t('dlKeyFeatures')}:
 ${data.bullet_points.map((bp, i) => `${i + 1}. ${bp}`).join('\n')}
 
-DESCRIPTION:
+${t('dlDescription')}:
 ${data.description}
 
-KEYWORDS:
+${t('dlKeywords')}:
 ${data.keywords.join(', ')}
 
 ${'='.repeat(50)}
-Generated by ListingClick · ${new Date().toLocaleDateString()}
+${t('dlGeneratedBy')} · ${new Date().toLocaleDateString()}
 `;
             const blob = new Blob([text], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
@@ -1046,7 +1207,7 @@ Generated by ListingClick · ${new Date().toLocaleDateString()}
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast('Downloaded!');
+            showToast(t('toastDownloaded'));
         }
 
         // Toast notification
@@ -1069,6 +1230,9 @@ Generated by ListingClick · ${new Date().toLocaleDateString()}
             const inputData = getInputData();
             if (inputData && inputData.text) generateListing(inputData);
         }
+
+        // === Apply i18n on load ===
+        applyI18n();
 
         // Start
         init();
