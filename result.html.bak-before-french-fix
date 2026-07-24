@@ -492,8 +492,7 @@
             'Français': 'French',
             'Español': 'Spanish',
             'Italiano': 'Italian',
-            '日本語': 'Japanese',
-            '中文': 'Chinese'
+            '日本語': 'Japanese'
         };
 
         function getOutputLang() {
@@ -595,9 +594,7 @@
             const outputLang = getOutputLang();
             const langInstruction = outputLang === 'English'
                 ? 'CRITICAL: ALL output MUST be in English. No Chinese, no other non-English characters. Even if the product information is in another language, translate and output everything in English.'
-                : outputLang === 'Chinese'
-                ? 'CRITICAL: ALL output MUST be in Chinese (中文). No English, no other non-Chinese characters. Even if the product information is in another language, translate and output everything in Chinese.'
-                : `CRITICAL: ALL output MUST be in ${outputLang} only. No Chinese, no English, no other non-${outputLang} characters allowed. Even if the product information is in another language, fully translate and output everything in ${outputLang}. Double-check every word is in ${outputLang}.`;
+                : `CRITICAL: ALL output MUST be in ${outputLang}. Even if the product information is in another language, translate and output everything in ${outputLang}.`;
 
             const textPrompt = `You are an expert e-commerce listing optimizer. Generate optimized product listings for three platforms: Amazon, Shopify, and Etsy.
 
@@ -826,9 +823,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation. Format:
             const outputLang = getOutputLang();
             const langInstruction = outputLang === 'English'
                 ? 'Output must be in English.'
-                : outputLang === 'Chinese'
-                ? 'Output must be in Chinese (中文) only. No English or other non-Chinese characters.'
-                : `Output must be in ${outputLang} only. No Chinese, no English, no other language characters. Fully translate everything into ${outputLang}.`;
+                : `Output must be in ${outputLang}.`;
 
             const prompts = {
                 title: `Generate a single optimized product title for ${currentPlatform}. Product: ${input}. ${langInstruction} Amazon: concise keyword-rich STRICT 75 chars max. Shopify: clean branded 70 chars max. Etsy: SEO-optimized 140 chars max. Return ONLY a JSON object: {"title": "..."}`,

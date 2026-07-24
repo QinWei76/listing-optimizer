@@ -675,7 +675,6 @@
                                 <option value="Español">Español</option>
                                 <option value="Italiano">Italiano</option>
                                 <option value="日本語">日本語</option>
-                                <option value="中文">中文</option>
                             </select>
                         </div>
                     </div>
