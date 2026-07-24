@@ -987,19 +987,19 @@
             isAnalyzing = true;
             generateBtn.disabled = true;
 
-            const visionPrompt = `You are a product identification expert for e-commerce. Analyze this product image and extract ALL visible information that would help create a product listing. Include:
+            const visionPrompt = `You are an expert at identifying products for e-commerce listings. Carefully analyze this image and identify EXACTLY what this product is.
 
-1. Product name/type (what is it?)
-2. Brand (if visible on product or packaging)
-3. Key visible features and design elements
-4. Materials (if apparent)
-5. Colors
-6. Approximate size/dimensions (if discernible)
-7. Target audience / use case
-8. Category (e.g., electronics, clothing, home & kitchen, etc.)
-9. Any text visible on the product or packaging
+IMPORTANT: Pay close attention to the product's SHAPE, STRUCTURE, and FUNCTION. Don't confuse similar-looking items. For example:
+- A weighted vest is NOT a backpack or hydration pack
+- A resistance band is NOT a rope
+- A yoga mat is NOT a towel
 
-Return the information as a concise, well-organized paragraph that can be used as product context for generating an e-commerce listing. Focus on factual, observable details.`;
+Step 1 - IDENTIFY: What is this product? What category does it belong to? What is its primary function?
+Step 2 - BRAND: Read any text, logos, or brand names visible on the product or packaging.
+Step 3 - FEATURES: List specific visible features (colors, materials, design elements, size indicators, buckles, straps, etc.)
+Step 4 - USE CASE: Who is this product for? What activities or situations is it designed for?
+
+Return your analysis as a clear, structured description. Start with the product name/type and brand, then list key features. Be precise and factual - only describe what you can actually see.`;
 
             try {
                 const res = await fetch(VISION_API_URL, {
